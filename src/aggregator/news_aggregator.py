@@ -1,5 +1,5 @@
 # src/aggregator/news_aggregator.py
-from .config_loader.py import load_config
+from .config_loader import load_config
 from .feed_fetcher import fetch_rss_entries
 from .manual_fetcher import fetch_manual_entries
 from datetime import datetime, timedelta
