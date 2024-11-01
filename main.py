@@ -9,6 +9,7 @@ import yaml
 import logging
 from bs4 import BeautifulSoup
 from jinja2 import Template
+from analyze_with_claude import analyze_with_claude
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
