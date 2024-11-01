@@ -42,7 +42,6 @@ class DevOpsNewsAggregator:
         for feed_url in self.feeds['rss_feeds']:
             feed = feedparser.parse(feed_url)
             for entry in feed.entries:
-                # Try 'published_parsed' first, fallback to 'updated_parsed'
                 entry_date = None
                 if hasattr(entry, 'published_parsed') and entry.published_parsed:
                     entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
@@ -52,15 +51,13 @@ class DevOpsNewsAggregator:
                     logging.warning(f"Entry missing both 'published_parsed' and 'updated_parsed' in feed: {feed_url}")
                     continue  # Skip if both dates are missing
                 
-                # Only add entries within the current week range
                 if self._is_in_current_week(entry_date):
                     self.entries.append(entry)
-
+                    logging.info(f"Added entry: {entry.get('title', 'No Title')} from {feed_url}")
 
     def fetch_manual_sources(self):
         """Fetch updates from sources that require web scraping"""
         for source in self.feeds['manual_sources']:
-            # Check for required fields in each manual source entry
             if not all(key in source for key in ['url', 'title', 'provider_name']):
                 logging.error(f"Manual source is missing required fields: {source}")
                 continue
@@ -78,9 +75,9 @@ class DevOpsNewsAggregator:
                     'published_parsed': datetime.now(pytz.UTC).timetuple()
                 }
                 self.entries.append(entry)
+                logging.info(f"Added manual entry: {source['title']} from {source['url']}")
             except requests.RequestException as e:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
-
 
     def generate_html_newsletter(self):
         """Generate HTML newsletter using Jinja2 template"""
@@ -103,6 +100,18 @@ class DevOpsNewsAggregator:
             
                 if not self._is_in_current_week(entry_date):
                     continue
+
+                analysis = entry.get('analysis', {})
+                impact = analysis.get('impact_level', 'LOW')
+                if impact == 'HIGH':
+                    high_impact.append(entry)
+                    logging.info(f"Classified entry as HIGH impact: {entry.get('title', 'No Title')}")
+                elif impact == 'MEDIUM':
+                    medium_impact.append(entry)
+                    logging.info(f"Classified entry as MEDIUM impact: {entry.get('title', 'No Title')}")
+                else:
+                    low_impact.append(entry)
+                    logging.info(f"Classified entry as LOW impact: {entry.get('title', 'No Title')}")
 
             start_date = self.current_week_range[0].strftime('%B %d, %Y')
             end_date = self.current_week_range[1].strftime('%B %d, %Y')
@@ -139,18 +148,22 @@ class DevOpsNewsAggregator:
         self.fetch_rss_feeds()
         self.fetch_manual_sources()
 
-        # Analyze each entry with Claude
         for entry in self.entries:
-            if hasattr(entry, 'published_parsed'):
+            entry_date = None
+            if hasattr(entry, 'published_parsed') and entry.published_parsed:
                 entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
-                if self._is_in_current_week(entry_date):
-                    entry['analysis'] = analyze_with_claude(
-                        entry.get('content', ''),
-                        entry.get('provider_name', 'Unknown'),
-                        entry.get('title', 'Untitled'),
-                        self.api_key
-                    )
-        
+            elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
+
+            if entry_date and self._is_in_current_week(entry_date):
+                entry['analysis'] = analyze_with_claude(
+                    entry.get('content', ''),
+                    entry.get('provider_name', 'Unknown'),
+                    entry.get('title', 'Untitled'),
+                    self.api_key
+                )
+                logging.info(f"Analyzed entry: {entry.get('title', 'No Title')} - Impact level: {entry['analysis'].get('impact_level', 'None')}")
+
         self.generate_html_newsletter()
         self.generate_rss_feed()
         logging.info("DevOps News Aggregator completed successfully")
