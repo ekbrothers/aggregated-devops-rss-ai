@@ -92,18 +92,17 @@ class DevOpsNewsAggregator:
             low_impact = []
 
             for entry in self.entries:
-                entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                entry_date = None
+                if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                    entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                    entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
+                else:
+                    logging.warning("Skipping entry due to missing date information.")
+                    continue
+            
                 if not self._is_in_current_week(entry_date):
                     continue
-
-                analysis = entry.get('analysis', {})
-                impact = analysis.get('impact_level', 'LOW')
-                if impact == 'HIGH':
-                    high_impact.append(entry)
-                elif impact == 'MEDIUM':
-                    medium_impact.append(entry)
-                else:
-                    low_impact.append(entry)
 
             start_date = self.current_week_range[0].strftime('%B %d, %Y')
             end_date = self.current_week_range[1].strftime('%B %d, %Y')
