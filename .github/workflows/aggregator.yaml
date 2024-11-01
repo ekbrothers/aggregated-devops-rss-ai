@@ -27,17 +27,33 @@ jobs:
       - name: Run aggregator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python main.py
-        
+        run: |
+          python main.py
+          pwd
+          ls -la
+          
+      - name: Debug - Check directory structure
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "Parent directory contents:"
+          ls -la ..
+          
       - name: Push to gh-pages
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git checkout --orphan gh-pages
           git reset --hard
+          pwd
+          ls -la
           find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} +
-          mv ../index.html .
-          touch .nojekyll
-          git add index.html .nojekyll
-          git commit -m "Update GitHub Pages"
+          ls -la
+          echo "Attempting to copy index.html..."
+          cp index.html index.html.bak || echo "No index.html in current dir"
+          ls -la .. || echo "Can't list parent dir"
+          git add index.html.bak .nojekyll || echo "Files not found"
+          git commit -m "Update GitHub Pages" || echo "Nothing to commit"
           git push -f origin gh-pages
