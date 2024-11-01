@@ -2,14 +2,12 @@ import feedparser
 import requests
 from datetime import datetime, timedelta
 import pytz
-from anthropic import Anthropic
-import json
 import os
 import yaml
 import logging
 from bs4 import BeautifulSoup
 from jinja2 import Template
-from analyze_with_claude import analyze_with_claude
+from analyze_with_claude import analyze_with_claude  # Import the function
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -67,40 +65,6 @@ class DevOpsNewsAggregator:
             except requests.RequestException as e:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
 
-    def analyze_with_claude(self, content, source, title):
-        prompt = f"""Analyze this DevOps update and provide an expanded, detailed summary, focusing on practical implications for DevOps teams.
-    
-        Source: {source}
-        Title: {title}
-        Content: {content}
-        
-        Provide response in JSON format with these fields:
-        1. summary: 3-5 sentence summary with detailed context
-        2. impact_level: HIGH/MEDIUM/LOW based on urgency for action
-        3. key_changes: List of 2-3 most important changes with explanation
-        4. action_items: List of specific actions DevOps teams should take
-        5. affected_services: List of impacted technologies/services
-        6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
-        
-        try:
-            response = self.anthropic.messages.create(
-                model="claude-3-sonnet-20240229",
-                max_tokens=1000,
-                messages=[{"role": "user", "content": prompt}]
-            )
-    
-            # Check and decode response
-            try:
-                return json.loads(response.content)
-            except json.JSONDecodeError:
-                logging.error(f"Failed to decode JSON from Claude API response: {response.content}")
-                return {}
-        except Exception as e:
-            logging.error(f"Claude API analysis error: {str(e)}")
-        return {}
-
-
-
     def generate_html_newsletter(self):
         """Generate HTML newsletter using Jinja2 template"""
         try:
@@ -152,22 +116,23 @@ class DevOpsNewsAggregator:
 
     def generate_rss_feed(self):
         """Generate RSS feed from the aggregated entries"""
-        # Implement RSS feed generation if required (similar to HTML generation)
-        pass
+        pass  # Implement if needed
 
     def run(self):
         """Main execution of aggregator"""
         self.fetch_rss_feeds()
         self.fetch_manual_sources()
 
+        # Analyze each entry with Claude
         for entry in self.entries:
             if hasattr(entry, 'published_parsed'):
                 entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
                 if self._is_in_current_week(entry_date):
-                    entry['analysis'] = self.analyze_with_claude(
-                        entry.get('content', ''), 
+                    entry['analysis'] = analyze_with_claude(
+                        entry.get('content', ''),
                         entry.get('provider_name', 'Unknown'),
-                        entry.get('title', 'Untitled')
+                        entry.get('title', 'Untitled'),
+                        self.api_key
                     )
         
         self.generate_html_newsletter()
