@@ -1,34 +1,56 @@
+# .github/workflows/deploy.yml
 name: DevOps News Aggregator
 on:
   schedule:
     - cron: '0 15 * * 5'  # Runs at 3 PM UTC every Friday
-  workflow_dispatch:
+  workflow_dispatch:      # Allow manual triggers
   push:
-    branches: [ main ]
+    branches: [ main ]    # Run on main branch updates
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  aggregate-and-publish:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-          
+          cache: 'pip'
+
       - name: Install dependencies
         run: |
-          pip install feedparser requests anthropic pyyaml beautifulsoup4 markdown jinja2 pytz
-          
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Run aggregator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python main.py
-        
+
+      # Debug steps
+      - name: Debug - List directory contents
+        run: |
+          echo "Current directory:"
+          ls -la
+          echo "Dist directory:"
+          ls -la dist || echo "dist directory not found"
+
+      # Simpler deployment approach focused on gh-pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
-          enable_jekyll: false
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy DevOps digest'
