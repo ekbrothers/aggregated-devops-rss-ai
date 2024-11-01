@@ -1,15 +1,77 @@
-# List of RSS feeds to monitor for DevOps updates
-rss_feeds:
-  - "https://github.blog/changelog/feed/"         # GitHub Changelog
-  - "https://aws.amazon.com/new/feed/"            # AWS What's New
-  - "https://cloud.google.com/feeds/announcements.xml"  # Google Cloud Announcements
-  - "https://azure.microsoft.com/en-us/updates/feed/"  # Azure Updates
+# config.yml
 
-# List of manual sources that require web scraping
+# RSS feeds for DevOps tool updates
+rss_feeds:
+  # Terraform Core and Providers
+  "https://github.com/hashicorp/terraform/releases.atom":
+    name: "Terraform CLI"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "security fix"
+      - "vulnerability"
+  
+  "https://github.com/hashicorp/terraform-provider-google/releases.atom":
+    name: "GCP Provider"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "deprecation"
+      
+  "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
+    name: "Azure Provider"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "deprecation"
+
+  # Platform Status and Updates
+  "https://www.githubstatus.com/history.atom":
+    name: "GitHub Status"
+    importance_keywords:
+      - "outage"
+      - "degraded performance"
+      
+  "https://status.hashicorp.com/history.atom":
+    name: "HashiCorp Status"
+    importance_keywords:
+      - "outage"
+      - "degraded performance"
+      
+  "https://github.blog/changelog/feed/":
+    name: "GitHub Changelog"
+    importance_keywords:
+      - "security"
+      - "actions"
+      - "api"
+      
+  "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
+    name: "GCP Terraform Updates"
+    importance_keywords:
+      - "breaking"
+      - "security"
+      - "feature"
+
+  "https://github.com/terraform-docs/terraform-docs/releases.atom":
+    name: "terraform-docs"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "security"
+
+# Manual sources requiring web scraping
 manual_sources:
-  - url: "https://example.com/manual-source1"
-    title: "Example Manual Source 1"
-    provider_name: "Example Provider 1"
-  - url: "https://example.com/manual-source2"
-    title: "Example Manual Source 2"
-    provider_name: "Example Provider 2"
+  - name: "ChatGPT Updates"
+    url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
+    type: "webpage"
+    
+  - name: "Claude Updates"
+    url: "https://www.anthropic.com/news"
+    type: "webpage"
+    
+  - name: "Azure DevOps Updates"
+    url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
+    type: "webpage"
+
+# Conference and event tracking configuration
+conferences:
+  sources:
+    - "https://www.hashicorp.com/events"      # HashiConf and other HashiCorp events
+    - "https://cloud.google.com/next"         # Google Cloud Next
+    - "https://www.microsoft.com/en-us/ignite"  # Microsoft Ignite
