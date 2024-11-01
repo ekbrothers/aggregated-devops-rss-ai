@@ -35,7 +35,7 @@ jobs:
           git config user.email github-actions@github.com
           git checkout --orphan gh-pages
           git reset --hard
-          rm -rf * .*
+          find . -maxdepth 1 ! -name '.git' ! -name '.' ! -name '..' -exec rm -rf {} +
           mv ../index.html .
           touch .nojekyll
           git add index.html .nojekyll
