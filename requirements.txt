@@ -1,0 +1,7 @@
+feedparser
+requests
+anthropic
+pytz
+beautifulsoup4
+jinja2
+PyYAML
