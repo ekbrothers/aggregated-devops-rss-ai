@@ -19,12 +19,33 @@ DevOps engineers need to stay current with multiple platforms and tools, but man
 - Support for both RSS feeds and web scraping
 - Weekly date-range filtering (Friday to Friday)
 
+## File Structure
+```
+.
+├── .github/workflows/    # GitHub Actions workflow configuration
+│   └── aggregator.yaml   # Main workflow for running the aggregator
+├── .gitignore           # Git ignore patterns
+├── README.md            # Project documentation
+├── analyze_with_claude.py # Claude AI analysis functionality
+├── config.yml           # Configuration for RSS feeds and sources
+├── main.py             # Main aggregator script
+├── newsletter_template.html # HTML template for the weekly digest
+└── requirements.txt     # Python package dependencies
+```
+
+### Key Files Explained:
+- **analyze_with_claude.py**: Handles the interaction with Claude AI API, processes updates to generate summaries, impact assessments, and actionable insights for DevOps teams
+- **config.yml**: Contains the configuration for all RSS feeds and manual sources to monitor, including URLs, source names, categories, and other settings
+- **main.py**: Core script that orchestrates the entire aggregation process - fetches updates, coordinates analysis, and generates the final output
+- **newsletter_template.html**: Jinja2 template that defines the structure and styling of the weekly HTML digest
+- **.github/workflows/aggregator.yaml**: Defines the GitHub Actions workflow that runs weekly, executes the aggregator, and handles deployment to GitHub Pages
+
 ## Configuration
 The `config.yml` file defines the sources to monitor:
-- RSS feeds (e.g., GitHub releases, status pages)
-- Manual sources requiring web scraping
-- Source-specific configurations
-- Additional settings for analysis
+* RSS feeds (e.g., GitHub releases, status pages)
+* Manual sources requiring web scraping
+* Source-specific configurations
+* Additional settings for analysis
 
 ## Workflow
 1. The GitHub Action runs weekly on Fridays
