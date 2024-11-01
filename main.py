@@ -80,64 +80,64 @@ class DevOpsNewsAggregator:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
 
     def generate_html_newsletter(self):
-        """Generate HTML newsletter using Jinja2 template"""
-        try:
-            os.makedirs('dist', exist_ok=True)
+    """Generate HTML newsletter using Jinja2 template, grouped by platform with logos."""
+    try:
+        os.makedirs('dist', exist_ok=True)
+        
+        # Organize entries by platform
+        platforms = {}
+        for entry in self.entries:
+            entry_date = None
+            if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+            elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
+            else:
+                continue
+
+            if not self._is_in_current_week(entry_date):
+                continue
             
-            high_impact = []
-            medium_impact = []
-            low_impact = []
-
-            for entry in self.entries:
-                entry_date = None
-                if hasattr(entry, 'published_parsed') and entry.published_parsed:
-                    entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
-                elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
-                    entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
-                else:
-                    logging.warning("Skipping entry due to missing date information.")
-                    continue
+            # Default summary if Claude analysis isn't available
+            analysis = entry.get('analysis', {})
+            summary = analysis.get('summary', "No summary available.")
+            platform_name = entry.get('provider_name', 'Unknown Platform')
+            platform_url = f"https://simpleicons.org/icons/{platform_name.lower().replace(' ', '')}.svg"
             
-                if not self._is_in_current_week(entry_date):
-                    continue
+            if platform_name not in platforms:
+                platforms[platform_name] = {
+                    "entries": [],
+                    "icon_url": platform_url
+                }
+            platforms[platform_name]["entries"].append({
+                "title": entry.get('title', 'No Title'),
+                "link": entry.get('link', '#'),
+                "summary": summary
+            })
 
-                analysis = entry.get('analysis', {})
-                impact = analysis.get('impact_level', 'LOW')
-                if impact == 'HIGH':
-                    high_impact.append(entry)
-                    logging.info(f"Classified entry as HIGH impact: {entry.get('title', 'No Title')}")
-                elif impact == 'MEDIUM':
-                    medium_impact.append(entry)
-                    logging.info(f"Classified entry as MEDIUM impact: {entry.get('title', 'No Title')}")
-                else:
-                    low_impact.append(entry)
-                    logging.info(f"Classified entry as LOW impact: {entry.get('title', 'No Title')}")
+        start_date = self.current_week_range[0].strftime('%B %d, %Y')
+        end_date = self.current_week_range[1].strftime('%B %d, %Y')
+        template_data = {
+            'week_range': f"{start_date} - {end_date}",
+            'platforms': platforms
+        }
 
-            start_date = self.current_week_range[0].strftime('%B %d, %Y')
-            end_date = self.current_week_range[1].strftime('%B %d, %Y')
-            template_data = {
-                'week_range': f"{start_date} - {end_date}",
-                'high_impact': high_impact,
-                'medium_impact': medium_impact,
-                'low_impact': low_impact
-            }
+        template_path = os.path.join(os.getcwd(), 'newsletter_template.html')
+        if not os.path.isfile(template_path):
+            logging.error(f"Template file not found at {template_path}")
+            return
+        
+        with open(template_path, 'r') as f:
+            template = Template(f.read())
 
-            template_path = os.path.join(os.getcwd(), 'newsletter_template.html')
-            if not os.path.isfile(template_path):
-                logging.error(f"Template file not found at {template_path}")
-                return
-            
-            with open(template_path, 'r') as f:
-                template = Template(f.read())
+        html_content = template.render(**template_data)
+        output_path = 'dist/index.html'
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(html_content)
 
-            html_content = template.render(**template_data)
-            output_path = 'dist/index.html'
-            with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(html_content)
-
-            logging.info("HTML newsletter generated successfully at dist/index.html")
-        except Exception as e:
-            logging.error(f"Error generating HTML newsletter: {str(e)}")
+        logging.info("HTML newsletter generated successfully at dist/index.html")
+    except Exception as e:
+        logging.error(f"Error generating HTML newsletter: {str(e)}")
 
     def generate_rss_feed(self):
         """Generate RSS feed from the aggregated entries"""
