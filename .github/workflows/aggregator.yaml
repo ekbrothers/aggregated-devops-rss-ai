@@ -28,7 +28,7 @@ jobs:
       - name: Run aggregator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python main.py
+        run:  python run_aggregator.py
 
       - name: Commit and push index.html to root of gh-pages branch
         if: success()

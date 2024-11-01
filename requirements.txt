@@ -1,7 +1,8 @@
 feedparser
 requests
-anthropic
-pytz
+PyYAML
 beautifulsoup4
 jinja2
-PyYAML
+anthropic
+feedgenerator
+pytz
