@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    paths-ignore:      # Corrected from paths_ignore
+      - '**.md'       # Corrected quote syntax
 
 permissions:
   contents: write
