@@ -67,34 +67,37 @@ class DevOpsNewsAggregator:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
 
     def analyze_with_claude(self, content, source, title):
-        """Use Claude API to analyze and prioritize updates"""
         prompt = f"""Analyze this DevOps update and provide a concise summary. Focus on practical implications for DevOps teams.
-
-Source: {source}
-Title: {title}
-Content: {content}
-
-Provide response in JSON format with these fields:
-1. summary: 2-3 sentence summary of key changes
-2. impact_level: HIGH/MEDIUM/LOW based on how urgently teams should act
-3. key_changes: List of 2-3 most important changes
-4. action_items: List of specific actions DevOps teams should take
-5. affected_services: List of related technologies/services impacted
-6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
-
+    
+    Source: {source}
+    Title: {title}
+    Content: {content}
+    
+    Provide response in JSON format with these fields:
+    1. summary: 2-3 sentence summary of key changes
+    2. impact_level: HIGH/MEDIUM/LOW based on how urgently teams should act
+    3. key_changes: List of 2-3 most important changes
+    4. action_items: List of specific actions DevOps teams should take
+    5. affected_services: List of related technologies/services impacted
+    6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
+    
         try:
             response = self.anthropic.messages.create(
                 model="claude-3-sonnet-20240229",
                 max_tokens=1000,
                 messages=[{"role": "user", "content": prompt}]
             )
-            return json.loads(response.content)
-        except json.JSONDecodeError:
-            logging.error("Failed to decode JSON from Claude API response")
-            return {}
+            
+            # Attempt to parse JSON response and log if it fails
+            try:
+                return json.loads(response.content)
+            except json.JSONDecodeError:
+                logging.error(f"Failed to decode JSON from Claude API response: {response.content}")
+                return {}
         except Exception as e:
             logging.error(f"Claude API analysis error: {str(e)}")
             return {}
+
 
     def generate_html_newsletter(self):
         """Generate HTML newsletter using Jinja2 template"""
