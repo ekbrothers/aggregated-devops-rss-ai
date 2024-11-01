@@ -36,19 +36,21 @@ class DevOpsNewsAggregator:
     def _is_in_current_week(self, entry_date):
         """Check if an entry falls within the current week range"""
         return self.current_week_range[0] <= entry_date < self.current_week_range[1]
-
+        
     def fetch_rss_feeds(self):
         """Fetch entries from RSS feeds defined in the config"""
         for feed_url in self.feeds['rss_feeds']:
             feed = feedparser.parse(feed_url)
             for entry in feed.entries:
-                # Check if 'published_parsed' is available
+                # Try 'published_parsed' first, fallback to 'updated_parsed'
+                entry_date = None
                 if hasattr(entry, 'published_parsed') and entry.published_parsed:
                     entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
+                    entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
                 else:
-                    logging.warning(f"Entry missing 'published_parsed' in feed: {feed_url}")
-                    # Skip this entry if 'published_parsed' is required
-                    continue
+                    logging.warning(f"Entry missing both 'published_parsed' and 'updated_parsed' in feed: {feed_url}")
+                    continue  # Skip if both dates are missing
                 
                 # Only add entries within the current week range
                 if self._is_in_current_week(entry_date):
