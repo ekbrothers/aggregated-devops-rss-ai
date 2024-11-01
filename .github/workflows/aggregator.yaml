@@ -19,7 +19,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          pip install feedparser requests anthropic pyyaml beautifulsoup4 markdown jinja2
+          pip install feedparser requests anthropic pyyaml beautifulsoup4 markdown jinja2 pytz
           
       - name: Run aggregator
         env:
