@@ -6,9 +6,19 @@ on:
   push:
     branches: [ main ]
 
+# Add permissions block
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
 jobs:
   aggregate-and-publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
     steps:
       - uses: actions/checkout@v3
       
@@ -24,11 +34,15 @@ jobs:
       - name: Run aggregator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: python main.py
-        
+        run: |
+          python main.py
+          ls -la dist/  # Debug: List contents of dist directory
+          
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist
+          force_orphan: true  # Ensure clean deployment
           enable_jekyll: false
+          commit_message: "Deploy DevOps Updates [skip ci]"
