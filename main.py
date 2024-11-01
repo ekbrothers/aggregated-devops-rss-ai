@@ -81,22 +81,22 @@ class DevOpsNewsAggregator:
         5. affected_services: List of impacted technologies/services
         6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
         
+        try:
+            response = self.anthropic.messages.create(
+                model="claude-3-sonnet-20240229",
+                max_tokens=1000,
+                messages=[{"role": "user", "content": prompt}]
+            )
+    
+            # Check and decode response
             try:
-                response = self.anthropic.messages.create(
-                    model="claude-3-sonnet-20240229",
-                    max_tokens=1000,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-        
-                # Check and decode response
-                try:
-                    return json.loads(response.content)
-                except json.JSONDecodeError:
-                    logging.error(f"Failed to decode JSON from Claude API response: {response.content}")
-                    return {}
-            except Exception as e:
-                logging.error(f"Claude API analysis error: {str(e)}")
-            return {}
+                return json.loads(response.content)
+            except json.JSONDecodeError:
+                logging.error(f"Failed to decode JSON from Claude API response: {response.content}")
+                return {}
+        except Exception as e:
+            logging.error(f"Claude API analysis error: {str(e)}")
+        return {}
 
 
 
