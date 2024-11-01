@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 class DevOpsNewsAggregator:
     def __init__(self):
-        self.anthropic = Anthropic(api_key=os.environ.get('ANTHROPIC_API_KEY'))
+        self.api_key = os.environ.get('ANTHROPIC_API_KEY')
         self.feeds = self._load_config()
         self.entries = []
         self.current_week_range = self._get_week_range()
