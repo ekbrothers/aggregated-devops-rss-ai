@@ -42,9 +42,18 @@ class DevOpsNewsAggregator:
         for feed_url in self.feeds['rss_feeds']:
             feed = feedparser.parse(feed_url)
             for entry in feed.entries:
-                entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                # Check if 'published_parsed' is available
+                if hasattr(entry, 'published_parsed') and entry.published_parsed:
+                    entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                else:
+                    logging.warning(f"Entry missing 'published_parsed' in feed: {feed_url}")
+                    # Skip this entry if 'published_parsed' is required
+                    continue
+                
+                # Only add entries within the current week range
                 if self._is_in_current_week(entry_date):
                     self.entries.append(entry)
+
 
     def fetch_manual_sources(self):
         """Fetch updates from sources that require web scraping"""
