@@ -21,10 +21,28 @@
             </div>
             
             {% for entry in details.entries %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 border-blue-500 mb-6">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 mb-6" style="border-color: {% if entry.impact_level == 'HIGH' %}red{% elif entry.impact_level == 'MEDIUM' %}yellow{% else %}blue{% endif %}">
                 <div class="p-6">
                     <h3 class="text-lg font-semibold text-gray-900">{{ entry.title }}</h3>
                     <p class="text-gray-600 my-2">{{ entry.summary }}</p>
+                    
+                    {% if entry.key_changes %}
+                    <h4 class="font-semibold text-gray-900 mt-4">Key Changes:</h4>
+                    <ul class="list-disc list-inside text-gray-600">
+                        {% for change in entry.key_changes %}
+                        <li>{{ change }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    {% if entry.action_items %}
+                    <h4 class="font-semibold text-gray-900 mt-4">Action Items:</h4>
+                    <ul class="list-disc list-inside text-gray-600">
+                        {% for item in entry.action_items %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
                     
                     <div class="mt-4">
                         <a href="{{ entry.link }}" class="text-blue-600 hover:text-blue-800">Read more →</a>
