@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Weekly Update</title>
+</head>
+<body>
+    <h1>DevOps Weekly Update</h1>
+    <p>{{ week_range }}</p>
+
+    {% if high_impact %}
+        <h2>🚨 High Impact Updates</h2>
+        <ul>
+            {% for entry in high_impact %}
+                <li>
+                    <h3>{{ entry.title }}</h3>
+                    <p>{{ entry.analysis.summary }}</p>
+                    <a href="{{ entry.link }}">Read more</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if medium_impact %}
+        <h2>⚠️ Medium Impact Updates</h2>
+        <ul>
+            {% for entry in medium_impact %}
+                <li>
+                    <h3>{{ entry.title }}</h3>
+                    <p>{{ entry.analysis.summary }}</p>
+                    <a href="{{ entry.link }}">Read more</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if low_impact %}
+        <h2>ℹ️ Low Impact Updates</h2>
+        <ul>
+            {% for entry in low_impact %}
+                <li>
+                    <h3>{{ entry.title }}</h3>
+                    <p>{{ entry.analysis.summary }}</p>
+                    <a href="{{ entry.link }}">Read more</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
