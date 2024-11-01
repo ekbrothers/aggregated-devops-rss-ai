@@ -66,19 +66,19 @@ class DevOpsNewsAggregator:
             except requests.RequestException as e:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
 
-    def analyze_with_claude(self, content, source, title):
-        prompt = f"""Analyze this DevOps update and provide a concise summary. Focus on practical implications for DevOps teams.
+        def analyze_with_claude(self, content, source, title):
+        prompt = f"""Analyze this DevOps update and provide an expanded, detailed summary, focusing on practical implications for DevOps teams.
     
     Source: {source}
     Title: {title}
     Content: {content}
     
     Provide response in JSON format with these fields:
-    1. summary: 2-3 sentence summary of key changes
-    2. impact_level: HIGH/MEDIUM/LOW based on how urgently teams should act
-    3. key_changes: List of 2-3 most important changes
+    1. summary: 3-5 sentence summary with detailed context
+    2. impact_level: HIGH/MEDIUM/LOW based on urgency for action
+    3. key_changes: List of 2-3 most important changes with explanation
     4. action_items: List of specific actions DevOps teams should take
-    5. affected_services: List of related technologies/services impacted
+    5. affected_services: List of impacted technologies/services
     6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
     
         try:
@@ -87,8 +87,8 @@ class DevOpsNewsAggregator:
                 max_tokens=1000,
                 messages=[{"role": "user", "content": prompt}]
             )
-            
-            # Attempt to parse JSON response and log if it fails
+    
+            # Check and decode response
             try:
                 return json.loads(response.content)
             except json.JSONDecodeError:
@@ -97,6 +97,7 @@ class DevOpsNewsAggregator:
         except Exception as e:
             logging.error(f"Claude API analysis error: {str(e)}")
             return {}
+
 
 
     def generate_html_newsletter(self):
