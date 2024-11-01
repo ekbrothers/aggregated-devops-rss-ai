@@ -35,7 +35,9 @@ jobs:
           git config user.email github-actions@github.com
           git checkout --orphan gh-pages
           git reset --hard
-          cp -r dist/* .
-          git add .
+          rm -rf * .*
+          mv ../index.html .
+          touch .nojekyll
+          git add index.html .nojekyll
           git commit -m "Update GitHub Pages"
           git push -f origin gh-pages
