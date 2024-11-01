@@ -19,77 +19,39 @@ class DevOpsNewsAggregator:
         self.feeds = self._load_config()
         self.entries = []
         self.important_updates = []
+        self.current_week_range = self._get_week_range()
         logging.basicConfig(level=logging.INFO)
 
-    def _load_config(self) -> Dict:
-        with open('config.yml', 'r') as f:
-            return yaml.safe_load(f)
+    def _get_week_range(self):
+        """Get the date range for the current week (Friday to Friday)"""
+        today = datetime.now(pytz.UTC)
+        # Find last Friday
+        days_since_friday = (today.weekday() - 4) % 7
+        last_friday = today - timedelta(days=days_since_friday)
+        last_friday = last_friday.replace(hour=0, minute=0, second=0, microsecond=0)
+        next_friday = last_friday + timedelta(days=7)
+        return last_friday, next_friday
 
-    def fetch_rss_feeds(self):
-        for feed_url, config in self.feeds['rss_feeds'].items():
-            try:
-                response = requests.get(feed_url)
-                feed = feedparser.parse(response.content)
-                for entry in feed.entries:
-                    entry['provider_name'] = config['name']
-                    entry.published_parsed = entry.get('published_parsed', entry.get('updated_parsed'))
-                    self.entries.append(entry)
-            except Exception as e:
-                logging.error(f"Error fetching {feed_url}: {str(e)}")
+    def _is_in_current_week(self, entry_date):
+        """Check if an entry falls within the current week range"""
+        if isinstance(entry_date, tuple):
+            entry_date = datetime(*entry_date[:6], tzinfo=pytz.UTC)
+        return self.current_week_range[0] <= entry_date < self.current_week_range[1]
 
-    def _parse_openai_updates(self, content: str):
-        try:
-            soup = BeautifulSoup(content, 'html.parser')
-            updates = soup.find_all('div', class_='release-note')
-            for update in updates:
-                entry = {
-                    'title': update.find('h2').text.strip(),
-                    'summary': update.find('div', class_='content').text.strip(),
-                    'published_parsed': datetime.now(pytz.UTC).timetuple(),
-                    'provider_name': 'ChatGPT Updates',
-                    'link': 'https://help.openai.com/en/articles/6825453-chatgpt-release-notes'
-                }
-                self.entries.append(entry)
-        except Exception as e:
-            logging.error(f"Error parsing OpenAI updates: {str(e)}")
+    def analyze_with_claude(self, content: str, source: str, title: str) -> Dict:
+        prompt = f"""Analyze this DevOps update and provide a concise summary. Focus on practical implications for DevOps teams.
 
-    def _parse_claude_updates(self, content: str):
-        try:
-            soup = BeautifulSoup(content, 'html.parser')
-            updates = soup.find_all('article')
-            for update in updates:
-                entry = {
-                    'title': update.find('h2').text.strip(),
-                    'summary': update.find('div', class_='content').text.strip(),
-                    'published_parsed': datetime.now(pytz.UTC).timetuple(),
-                    'provider_name': 'Claude Updates',
-                    'link': 'https://www.anthropic.com/news'
-                }
-                self.entries.append(entry)
-        except Exception as e:
-            logging.error(f"Error parsing Claude updates: {str(e)}")
-
-    def fetch_manual_sources(self):
-        for source in self.feeds['manual_sources']:
-            try:
-                response = requests.get(source['url'])
-                if 'chatgpt' in source['name'].lower():
-                    self._parse_openai_updates(response.text)
-                elif 'claude' in source['name'].lower():
-                    self._parse_claude_updates(response.text)
-            except Exception as e:
-                logging.error(f"Error fetching {source['name']}: {str(e)}")
-
-    def analyze_with_claude(self, content: str) -> Dict:
-        prompt = f"""Please analyze this DevOps update and provide:
-1. A brief summary (2-3 sentences)
-2. Impact level (HIGH/MEDIUM/LOW)
-3. Action items for DevOps teams
-4. Related technologies or services
-
+Source: {source}
+Title: {title}
 Content: {content}
 
-Format the response as JSON with keys: summary, impact_level, action_items, related_tech"""
+Provide response in JSON format with these fields:
+1. summary: 2-3 sentence summary of key changes
+2. impact_level: HIGH/MEDIUM/LOW based on how urgently teams should act
+3. key_changes: List of 2-3 most important changes (bullet points)
+4. action_items: List of specific actions DevOps teams should take
+5. affected_services: List of related technologies/services impacted
+6. tags: List of relevant categories (SECURITY/FEATURE/PERFORMANCE/DEPRECATION)"""
 
         response = self.anthropic.messages.create(
             model="claude-3-sonnet-20240229",
@@ -99,75 +61,52 @@ Format the response as JSON with keys: summary, impact_level, action_items, rela
         
         return json.loads(response.content)
 
-    def generate_rss_feed(self):
-        try:
-            os.makedirs('dist', exist_ok=True)
-            with open('dist/feed.xml', 'w', encoding='utf-8') as f:
-                f.write('<?xml version="1.0" encoding="UTF-8"?>\n')
-                f.write('<feed xmlns="http://www.w3.org/2005/Atom">\n')
-                f.write('<title>DevOps Weekly Update</title>\n')
-                f.write('<link href="https://example.com/feed.xml" rel="self"/>\n')
-                f.write(f"<updated>{datetime.now(pytz.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>\n")
-                f.write('<author><name>DevOps News Aggregator</name></author>\n')
-                f.write('<id>urn:uuid:devops-news-aggregator</id>\n')
-
-                for entry in self.entries:
-                    provider_name = entry.get('provider_name', 'Unknown Provider')
-                    title = f"{provider_name}: {entry.get('title', 'Untitled')}"
-                    link = entry.get('link', '#')
-                    published = datetime(*entry.get('published_parsed', datetime.now(pytz.UTC).timetuple())[:6]).strftime('%Y-%m-%dT%H:%M:%SZ')
-                    content = entry.get('summary', 'No content available')
-                    
-                    # Clean content for XML
-                    content = content.replace('<![CDATA[', '').replace(']]>', '')
-                    
-                    f.write('<entry>\n')
-                    f.write(f"<title>{title}</title>\n")
-                    f.write(f"<link href='{link}'/>\n")
-                    f.write(f"<id>{link}</id>\n")
-                    f.write(f"<updated>{published}</updated>\n")
-                    f.write(f"<content type='html'><![CDATA[{content}]]></content>\n")
-                    f.write('</entry>\n')
-                
-                f.write('</feed>')
-            logging.info("RSS feed generated successfully")
-        except Exception as e:
-            logging.error(f"Error generating RSS feed: {str(e)}")
-
     def generate_html_newsletter(self):
         try:
             os.makedirs('dist', exist_ok=True)
-            template_str = """
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>DevOps Weekly Update</title>
-                <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-            </head>
-            <body class="bg-gray-100 p-8">
-                <div class="max-w-4xl mx-auto">
-                    <h1 class="text-3xl font-bold mb-8">DevOps Weekly Update</h1>
-                    <div class="space-y-8">
-                        {% for update in entries %}
-                        <div class="bg-white p-6 rounded-lg shadow">
-                            <h2 class="text-xl font-semibold mb-2">{{ update.provider_name }}: {{ update.title }}</h2>
-                            <div class="text-gray-600 mb-4">{{ update.summary }}</div>
-                            <div class="text-sm text-gray-500">
-                                <a href="{{ update.link }}" class="text-blue-500 hover:text-blue-700">Read more</a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </body>
-            </html>
-            """
             
-            template = Template(template_str)
-            html_content = template.render(entries=self.entries)
+            # Group entries by impact level
+            high_impact = []
+            medium_impact = []
+            low_impact = []
+            
+            for entry in self.entries:
+                if not hasattr(entry, 'published_parsed'):
+                    continue
+                    
+                entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                if not self._is_in_current_week(entry_date):
+                    continue
+                    
+                analysis = entry.get('analysis', {})
+                impact = analysis.get('impact_level', 'LOW')
+                
+                if impact == 'HIGH':
+                    high_impact.append(entry)
+                elif impact == 'MEDIUM':
+                    medium_impact.append(entry)
+                else:
+                    low_impact.append(entry)
+
+            # Get the week range for the title
+            start_date = self.current_week_range[0].strftime('%B %d, %Y')
+            end_date = self.current_week_range[1].strftime('%B %d, %Y')
+            
+            template_data = {
+                'week_range': f"{start_date} - {end_date}",
+                'high_impact': high_impact,
+                'medium_impact': medium_impact,
+                'low_impact': low_impact
+            }
+
+            with open('newsletter_template.html', 'r') as f:
+                template = Template(f.read())
+            
+            html_content = template.render(**template_data)
             
             with open('dist/index.html', 'w', encoding='utf-8') as f:
                 f.write(html_content)
+                
             logging.info("HTML newsletter generated successfully")
         except Exception as e:
             logging.error(f"Error generating HTML newsletter: {str(e)}")
@@ -175,10 +114,18 @@ Format the response as JSON with keys: summary, impact_level, action_items, rela
     def run(self):
         self.fetch_rss_feeds()
         self.fetch_manual_sources()
+        
+        # Analyze entries with Claude
+        for entry in self.entries:
+            if hasattr(entry, 'published_parsed'):
+                entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
+                if self._is_in_current_week(entry_date):
+                    entry['analysis'] = self.analyze_with_claude(
+                        entry.get('summary', ''), 
+                        entry.get('provider_name', 'Unknown'),
+                        entry.get('title', 'Untitled')
+                    )
+        
         self.generate_html_newsletter()
         self.generate_rss_feed()
         logging.info("DevOps News Aggregator completed successfully")
-
-if __name__ == "__main__":
-    aggregator = DevOpsNewsAggregator()
-    aggregator.run()
