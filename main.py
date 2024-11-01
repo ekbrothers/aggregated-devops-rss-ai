@@ -60,6 +60,11 @@ class DevOpsNewsAggregator:
     def fetch_manual_sources(self):
         """Fetch updates from sources that require web scraping"""
         for source in self.feeds['manual_sources']:
+            # Check for required fields in each manual source entry
+            if not all(key in source for key in ['url', 'title', 'provider_name']):
+                logging.error(f"Manual source is missing required fields: {source}")
+                continue
+    
             try:
                 response = requests.get(source['url'])
                 response.raise_for_status()
@@ -75,6 +80,7 @@ class DevOpsNewsAggregator:
                 self.entries.append(entry)
             except requests.RequestException as e:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
+
 
     def generate_html_newsletter(self):
         """Generate HTML newsletter using Jinja2 template"""
