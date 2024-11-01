@@ -1,0 +1,41 @@
+# config.yml
+rss_feeds:
+  "https://github.com/hashicorp/terraform/releases.atom":
+    name: "Terraform CLI"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "security fix"
+      - "vulnerability"
+  "https://github.com/hashicorp/terraform-provider-google/releases.atom":
+    name: "GCP Provider"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "deprecation"
+  "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
+    name: "AzureRM Provider"
+    importance_keywords:
+      - "BREAKING CHANGE"
+      - "deprecation"
+  "https://www.githubstatus.com/history.atom":
+    name: "GitHub Status"
+    importance_keywords:
+      - "outage"
+      - "degraded performance"
+
+manual_sources:
+  - name: "ChatGPT Updates"
+    url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
+    type: "webpage"
+  - name: "Claude Updates"
+    url: "https://www.anthropic.com/news"
+    type: "webpage"
+  - name: "Azure DevOps Updates"
+    url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
+    type: "webpage"
+
+conferences:
+  sources:
+    - "https://www.hashicorp.com/events"
+    - "https://www.microsoft.com/en-us/ignite"
+    - "https://cloud.google.com/next"
+    - "https://reinvent.awsevents.com/"
