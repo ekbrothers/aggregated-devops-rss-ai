@@ -80,7 +80,7 @@ class DevOpsNewsAggregator:
                 logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
 
     def generate_html_newsletter(self):
-        """Generate HTML newsletter using Jinja2 template, grouped by platform with logos."""
+        """Generate a detailed HTML newsletter using Jinja2 template, grouped by platform with summaries."""
         try:
             os.makedirs('dist', exist_ok=True)
             
@@ -97,13 +97,17 @@ class DevOpsNewsAggregator:
     
                 if not self._is_in_current_week(entry_date):
                     continue
-                
-                # Default summary if Claude analysis isn't available
+    
+                # Collect details from Claude's analysis or provide fallback data
                 analysis = entry.get('analysis', {})
                 summary = analysis.get('summary', "No summary available.")
+                impact_level = analysis.get('impact_level', 'LOW')
+                key_changes = analysis.get('key_changes', [])
+                action_items = analysis.get('action_items', [])
                 platform_name = entry.get('provider_name', 'Unknown Platform')
                 platform_url = f"https://simpleicons.org/icons/{platform_name.lower().replace(' ', '')}.svg"
-                
+    
+                # Organize by platform name
                 if platform_name not in platforms:
                     platforms[platform_name] = {
                         "entries": [],
@@ -112,9 +116,13 @@ class DevOpsNewsAggregator:
                 platforms[platform_name]["entries"].append({
                     "title": entry.get('title', 'No Title'),
                     "link": entry.get('link', '#'),
-                    "summary": summary
+                    "summary": summary,
+                    "impact_level": impact_level,
+                    "key_changes": key_changes,
+                    "action_items": action_items
                 })
     
+            # Render the HTML with the template
             start_date = self.current_week_range[0].strftime('%B %d, %Y')
             end_date = self.current_week_range[1].strftime('%B %d, %Y')
             template_data = {
@@ -138,6 +146,7 @@ class DevOpsNewsAggregator:
             logging.info("HTML newsletter generated successfully at dist/index.html")
         except Exception as e:
             logging.error(f"Error generating HTML newsletter: {str(e)}")
+
 
     def generate_rss_feed(self):
         """Generate RSS feed from the aggregated entries"""
