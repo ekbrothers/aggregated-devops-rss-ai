@@ -1,41 +1,42 @@
 # config.yml
 rss_feeds:
-  "https://github.com/hashicorp/terraform/releases.atom":
-    name: "Terraform CLI"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "security fix"
-      - "vulnerability"
-  "https://github.com/hashicorp/terraform-provider-google/releases.atom":
-    name: "GCP Provider"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "deprecation"
-  "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
-    name: "AzureRM Provider"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "deprecation"
-  "https://www.githubstatus.com/history.atom":
-    name: "GitHub Status"
-    importance_keywords:
-      - "outage"
-      - "degraded performance"
+  https://kubernetes.io/feed.xml:
+    name: Kubernetes
+    category: PLATFORM
+  https://aws.amazon.com/blogs/devops/feed/:
+    name: AWS DevOps
+    category: CLOUD
+  https://cloudplatform.googleblog.com/feeds/posts/default:
+    name: Google Cloud
+    category: CLOUD
+  https://devblogs.microsoft.com/devops/feed/:
+    name: Azure DevOps
+    category: CLOUD
+  https://github.blog/feed/:
+    name: GitHub
+    category: TOOLS
 
 manual_sources:
-  - name: "ChatGPT Updates"
-    url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
-    type: "webpage"
-  - name: "Claude Updates"
-    url: "https://www.anthropic.com/news"
-    type: "webpage"
-  - name: "Azure DevOps Updates"
-    url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
-    type: "webpage"
+  - name: ChatGPT Updates
+    url: https://help.openai.com/en/articles/6825453-chatgpt-release-notes
+    category: AI
+  - name: Claude Updates
+    url: https://www.anthropic.com/news
+    category: AI
 
-conferences:
-  sources:
-    - "https://www.hashicorp.com/events"
-    - "https://www.microsoft.com/en-us/ignite"
-    - "https://cloud.google.com/next"
-    - "https://reinvent.awsevents.com/"
+categories:
+  - SECURITY
+  - FEATURE
+  - PERFORMANCE
+  - DEPRECATION
+
+impact_levels:
+  - HIGH
+  - MEDIUM
+  - LOW
+
+# Number of high-impact updates to feature in highlights
+max_highlights: 3
+
+# Minimum impact level to include in digest (HIGH, MEDIUM, or LOW)
+minimum_impact: LOW
