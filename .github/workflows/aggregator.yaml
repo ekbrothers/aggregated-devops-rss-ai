@@ -7,10 +7,10 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: write # Required for gh-pages branch creation/push
+  contents: write
 
 jobs:
-  aggregate-and-publish:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,12 +29,13 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python main.py
         
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          enable_jekyll: false
-          force_orphan: true # Ensure clean deployment each time
-          user_name: 'github-actions[bot]'
-          user_email: 'github-actions[bot]@users.noreply.github.com'
+      - name: Push to gh-pages
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout --orphan gh-pages
+          git reset --hard
+          cp -r dist/* .
+          git add .
+          git commit -m "Update GitHub Pages"
+          git push -f origin gh-pages
