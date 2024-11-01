@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   aggregate-and-publish:
@@ -30,10 +28,14 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python main.py
 
-      - name: Deploy to GitHub Pages
+      - name: Commit and push index.html to root of gh-pages branch
         if: success()
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          force_orphan: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout --orphan gh-pages  # Create a new orphan gh-pages branch
+          git reset --hard  # Clear any existing content in gh-pages branch
+          cp dist/index.html ./index.html  # Copy index.html to root
+          git add index.html
+          git commit -m "Update index.html for DevOps News Aggregator"
+          git push -f origin gh-pages  # Force push to gh-pages branch
