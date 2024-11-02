@@ -1,21 +1,17 @@
 from datetime import datetime, timedelta
 import pytz
 import logging
-from typing import List, Dict, Any, Tuple
-from .feed_fetcher import FeedFetcher, fetch_rss_entries
+from .feed_fetcher import fetch_rss_entries
 from .manual_fetcher import fetch_manual_entries
 
 class NewsAggregator:
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config):
         self.config = config
-        self.feed_fetcher = FeedFetcher()
         self.current_week_range = self._get_week_range()
-        self.entries = []
 
-    def _get_week_range(self) -> Tuple[datetime, datetime]:
+    def _get_week_range(self):
         """
-        Get the date range for fetching updates.
-        Default to 2 weeks of updates.
+        Get date range for the last 2 weeks.
         """
         today = datetime.now(pytz.UTC)
         days_since_friday = (today.weekday() - 4) % 7
@@ -25,87 +21,92 @@ class NewsAggregator:
         logging.info(f"Current week range: {last_friday} to {next_friday}")
         return last_friday, next_friday
 
-    def aggregate(self) -> List[Dict[str, Any]]:
+    def aggregate(self):
         """
         Aggregate news from all configured sources.
         """
         entries = []
-
-        # Fetch RSS feeds
+        
+        # Process RSS feeds
         for feed_url, feed_config in self.config.get('rss_feeds', {}).items():
             try:
-                feed_entries = self.feed_fetcher.fetch(feed_url)
+                feed_entries = fetch_rss_entries(feed_url, self.current_week_range)
                 for entry in feed_entries:
-                    # Add source metadata
-                    entry['provider_name'] = feed_config.get('provider_name', '')
+                    # Add source configuration
+                    entry['provider_name'] = feed_config.get('provider_name', entry.get('provider_name', ''))
                     entry['importance_keywords'] = feed_config.get('importance_keywords', [])
-                    entry['source_type'] = self._determine_source_type(feed_config)
+                    
+                    # Determine source type
+                    entry['source_type'] = self._determine_source_type(
+                        entry['provider_name'],
+                        feed_url,
+                        feed_config
+                    )
+                    
                     entries.append(entry)
+                    logging.debug(f"Processed entry: {entry.get('title')} from {feed_url}")
+                    
             except Exception as e:
-                logging.error(f"Error fetching RSS feed {feed_url}: {e}")
-
-        # Fetch manual sources
+                logging.error(f"Error processing RSS feed {feed_url}: {e}")
+        
+        # Process manual sources
         for source in self.config.get('manual_sources', []):
             try:
                 manual_entries = fetch_manual_entries(source, self.current_week_range)
                 for entry in manual_entries:
-                    # Add source metadata
+                    # Add source information
                     entry['provider_name'] = source.get('provider_name', '')
-                    entry['source_type'] = self._determine_source_type(source)
+                    entry['source_type'] = self._determine_source_type(
+                        entry['provider_name'],
+                        source.get('url', ''),
+                        source
+                    )
+                    
                     entries.append(entry)
+                    logging.debug(f"Processed manual entry from {source.get('url')}")
+                    
             except Exception as e:
-                logging.error(f"Error fetching manual source {source.get('url', '')}: {e}")
+                logging.error(f"Error processing manual source {source.get('url', '')}: {e}")
 
-        # Filter entries by date
-        filtered_entries = self._filter_entries_by_date(entries)
-        
         # Sort entries by date
-        filtered_entries.sort(
-            key=lambda x: datetime.fromisoformat(x.get('published', '2000-01-01')),
+        entries.sort(
+            key=lambda x: datetime.fromisoformat(x['published']) if isinstance(x.get('published'), str)
+            else x.get('published', datetime.min.replace(tzinfo=pytz.UTC)),
             reverse=True
         )
 
-        logging.info(f"Total entries fetched: {len(filtered_entries)}")
-        return filtered_entries
+        logging.info(f"Total entries fetched: {len(entries)}")
+        return entries
 
-    def _determine_source_type(self, source_config: Dict[str, Any]) -> str:
+    def _determine_source_type(self, provider_name, url, config):
         """
-        Determine the type of source based on provider name and URL.
+        Determine the type of source based on provider and URL.
         """
-        provider = source_config.get('provider_name', '').lower()
+        provider = provider_name.lower()
+        url = url.lower()
         
-        # Terraform providers and tools
-        if provider == 'terraform':
-            if 'provider' in str(source_config.get('url', '')):
-                return 'terraform_providers'
+        # Terraform providers
+        if 'terraform-provider-' in url:
+            return 'terraform_providers'
+        
+        # Terraform core
+        if provider == 'terraform' and 'provider' not in url:
             return 'devops_tools'
         
         # VCS platforms
-        if provider in ['github', 'gitlab', 'azuredevops']:
+        if provider in ['github', 'gitlab', 'azuredevops'] or any(p in url for p in ['github', 'gitlab', 'azure.com']):
             return 'vcs_platforms'
         
         # AI tools
-        if provider in ['openai', 'anthropic']:
+        if provider in ['openai', 'anthropic', 'claude'] or 'copilot' in url:
             return 'ai_tools'
         
         # Cloud providers
-        if provider in ['googlecloud', 'aws', 'azure']:
+        if provider in ['googlecloud', 'aws', 'azure'] or any(p in url for p in ['google.com', 'aws.amazon.com', 'azure.com']):
             return 'cloud_providers'
         
-        # Default to devops_tools
-        return 'devops_tools'
-
-    def _filter_entries_by_date(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """
-        Filter entries to only include those within the current date range.
-        """
-        filtered = []
-        for entry in entries:
-            try:
-                pub_date = datetime.fromisoformat(entry.get('published', '2000-01-01'))
-                if self.current_week_range[0] <= pub_date <= self.current_week_range[1]:
-                    filtered.append(entry)
-            except (ValueError, TypeError) as e:
-                logging.error(f"Error parsing date for entry: {e}")
-                continue
-        return filtered
+        # HashiCorp tools
+        if provider == 'hashicorp' or 'hashicorp.com' in url:
+            return 'devops_tools'
+        
+        return 'other'
