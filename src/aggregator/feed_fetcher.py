@@ -29,6 +29,7 @@ def fetch_rss_entries(feed_url, current_week_range):
                     # Extract content
                     content = _extract_entry_content(entry)
                     
+                    # Create entry data
                     entry_data = {
                         'title': entry.get('title', 'No Title'),
                         'link': entry.get('link', '#'),
