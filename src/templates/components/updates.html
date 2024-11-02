@@ -1,0 +1,54 @@
+<!-- Updates Grid -->
+<section id="updates-container" class="mb-8">
+    {% for source, updates in updates_by_source.items() %}
+    <div class="mb-8">
+        <div class="flex items-center mb-4">
+            <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-10 h-10 mr-3">
+            <h3 class="text-2xl font-semibold text-gray-800">{{updates.name}} Updates</h3>
+        </div>
+        
+        {% for entry in updates.entries %}
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 mb-4 {{entry.impact_class}}" 
+             data-categories="{{entry.categories|join(' ')}}" 
+             data-impact="{{entry.impact}}"
+             data-date="{{entry.date}}">
+            <div class="p-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900">{{entry.title}}</h4>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            {% for category in entry.categories %}
+                            <span class="px-2 py-1 text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">{{category}}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <span class="text-sm font-medium text-white px-2 py-1 rounded {{entry.impact_badge_class}}">
+                        {{entry.impact|upper}}
+                    </span>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="text-gray-700 prose dark:prose-invert">{{entry.content}}</div>
+                    
+                    {% if entry.key_changes %}
+                    <div class="mt-4">
+                        <h5 class="font-semibold text-gray-800 mb-2">Key Changes:</h5>
+                        <ul class="list-disc list-inside text-gray-700">
+                            {% for change in entry.key_changes %}
+                            <li>{{change}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4 flex items-center justify-between">
+                    <a href="{{entry.url}}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">Read more →</a>
+                    <span class="text-sm text-gray-600">{{entry.published}}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</section>

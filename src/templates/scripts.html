@@ -1,0 +1,139 @@
+<script>
+    // Theme toggle functionality
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    const theme = localStorage.getItem('theme') || 'dark';
+    html.classList.toggle('dark', theme === 'dark');
+    updateIcons(theme === 'dark');
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = html.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateIcons(isDark);
+    });
+
+    function updateIcons(isDark) {
+        sunIcon.classList.toggle('hidden', isDark);
+        moonIcon.classList.toggle('hidden', !isDark);
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', filterUpdates);
+
+    // Filter tags
+    const filterTags = document.querySelectorAll('.filter-tag');
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            tag.classList.toggle('active');
+            filterUpdates();
+        });
+    });
+
+    // View toggle
+    const listViewBtn = document.getElementById('list-view-btn');
+    const timelineViewBtn = document.getElementById('timeline-view-btn');
+    const updatesContainer = document.getElementById('updates-container');
+
+    listViewBtn.addEventListener('click', () => {
+        updatesContainer.classList.remove('timeline-view');
+        listViewBtn.classList.add('bg-blue-500', 'text-white');
+        listViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        timelineViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+        timelineViewBtn.classList.remove('bg-blue-500', 'text-white');
+    });
+
+    timelineViewBtn.addEventListener('click', () => {
+        updatesContainer.classList.add('timeline-view');
+        timelineViewBtn.classList.add('bg-blue-500', 'text-white');
+        timelineViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        listViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+        listViewBtn.classList.remove('bg-blue-500', 'text-white');
+    });
+
+    function filterUpdates() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeImpactFilters = Array.from(filterTags)
+            .filter(tag => tag.classList.contains('active') && tag.dataset.filter.startsWith('impact-'))
+            .map(tag => tag.dataset.filter);
+        const activeCategoryFilters = Array.from(filterTags)
+            .filter(tag => tag.classList.contains('active') && !tag.dataset.filter.startsWith('impact-'))
+            .map(tag => tag.dataset.filter);
+
+        const updates = document.querySelectorAll('#updates-container [data-impact]');
+        
+        updates.forEach(update => {
+            const title = update.querySelector('h4').textContent.toLowerCase();
+            const summary = update.querySelector('.prose').textContent.toLowerCase();
+            const impact = 'impact-' + update.dataset.impact.toLowerCase();
+            const categories = update.dataset.categories.split(' ');
+
+            const matchesSearch = searchTerm === '' || 
+                title.includes(searchTerm) || 
+                summary.includes(searchTerm);
+
+            const matchesImpact = activeImpactFilters.length === 0 || 
+                activeImpactFilters.includes(impact);
+
+            const matchesCategory = activeCategoryFilters.length === 0 || 
+                categories.some(cat => activeCategoryFilters.includes(cat));
+
+            update.style.display = 
+                matchesSearch && matchesImpact && matchesCategory ? 'block' : 'none';
+
+            // Highlight search terms
+            if (matchesSearch && searchTerm !== '') {
+                highlightText(update, searchTerm);
+            } else {
+                removeHighlights(update);
+            }
+        });
+    }
+
+    function highlightText(element, searchTerm) {
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const text = node.textContent;
+            const index = text.toLowerCase().indexOf(searchTerm);
+
+            if (index >= 0 && node.parentElement.className !== 'highlight') {
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                const before = text.substring(0, index);
+                const match = text.substring(index, index + searchTerm.length);
+                const after = text.substring(index + searchTerm.length);
+                
+                const beforeNode = document.createTextNode(before);
+                const afterNode = document.createTextNode(after);
+                span.textContent = match;
+                
+                const parent = node.parentNode;
+                parent.insertBefore(beforeNode, node);
+                parent.insertBefore(span, node);
+                parent.insertBefore(afterNode, node);
+                parent.removeChild(node);
+            }
+        }
+    }
+
+    function removeHighlights(element) {
+        const highlights = element.querySelectorAll('.highlight');
+        highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            parent.replaceChild(
+                document.createTextNode(highlight.textContent),
+                highlight
+            );
+        });
+    }
+</script>

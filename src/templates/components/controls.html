@@ -1,0 +1,34 @@
+<!-- Controls -->
+<section class="mb-8">
+    <div class="flex flex-wrap gap-4 items-center justify-between bg-white p-4 rounded-lg shadow-md">
+        <!-- Search -->
+        <div class="flex-grow max-w-md">
+            <input type="text" id="search" placeholder="Search updates..." class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <!-- View Toggle -->
+        <div class="flex gap-2">
+            <button id="list-view-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active">List View</button>
+            <button id="timeline-view-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Timeline</button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow-md filter-section">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 filter-heading">Filters</h3>
+        <div class="flex flex-wrap gap-2">
+            <div class="font-semibold mr-2 filter-label">Impact:</div>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-high">High Impact</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-medium">Medium Impact</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-low">Low Impact</span>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-2">
+            <div class="font-semibold mr-2 filter-label">Category:</div>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="infrastructure">Infrastructure</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="cicd">CI/CD</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="security">Security</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="cloud">Cloud</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="tools">Tools</span>
+        </div>
+    </div>
+</section>

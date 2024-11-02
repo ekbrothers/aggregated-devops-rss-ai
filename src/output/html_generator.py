@@ -5,7 +5,7 @@ import shutil
 from datetime import datetime
 from src.utils.icon_mapping import ICON_MAPPING
 
-def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
+def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='src/templates/base.html', output_dir='dist'):
     """
     Generate HTML newsletter from analyzed entries.
     """
@@ -23,8 +23,8 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
             else:
                 logging.error(f"Icon file {source_path} does not exist.")
         
-        # Process entries and organize by type and source
-        updates_by_type = {}
+        # Process entries and organize by platform
+        platforms = {}
         stats = {
             'breaking_changes_count': 0,
             'security_updates_count': 0,
@@ -33,32 +33,28 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         }
         
         for entry in entries:
-            source_type = entry.get('source_type', 'other')
-            provider_name = entry.get('provider_name', 'unknown')
+            platform_name = entry.get('provider_name', 'unknown').lower()
+            icon_filename = ICON_MAPPING.get(platform_name, 'question.svg')
+            icon_path = f"assets/icons/{icon_filename}"
             
-            # Initialize source type if not exists
-            if source_type not in updates_by_type:
-                updates_by_type[source_type] = {}
-            
-            # Initialize provider if not exists
-            if provider_name not in updates_by_type[source_type]:
-                updates_by_type[source_type][provider_name] = {
-                    'name': provider_name.title(),
-                    'icon': ICON_MAPPING.get(provider_name, 'question.svg'),
-                    'entries': []
+            if platform_name not in platforms:
+                platforms[platform_name] = {
+                    "name": platform_name.title(),
+                    "icon": icon_path,
+                    "entries": []
                 }
             
             # Process entry
             processed_entry = {
-                'title': entry.get('title', 'No Title'),
-                'link': entry.get('link', '#'),
-                'published': entry.get('published', ''),
-                'content': entry.get('content', 'No content available.'),
-                'impact': 'LOW',  # Default impact
-                'impact_class': 'impact-low',
-                'impact_badge_class': 'bg-green-500',
-                'categories': ['General'],
-                'key_changes': []
+                "title": str(entry.get('title', 'No Title')),
+                "url": str(entry.get('link', '#')),
+                "published": str(entry.get('published', '')),
+                "content": str(entry.get('content', 'No content available.')),
+                "impact": "LOW",
+                "impact_class": "impact-low",
+                "impact_badge_class": "bg-green-500",
+                "categories": ["General"],
+                "key_changes": []
             }
             
             # Update statistics based on content
@@ -78,19 +74,6 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                 stats['new_features_count'] += 1
                 processed_entry['categories'].append('New Feature')
             
-            # Add source-specific categories
-            if source_type == 'terraform_providers':
-                processed_entry['categories'].append('Infrastructure')
-            elif source_type == 'vcs_platforms':
-                processed_entry['categories'].append('CI/CD')
-            elif source_type == 'ai_tools':
-                processed_entry['categories'].append('AI/ML')
-            elif source_type == 'cloud_providers':
-                processed_entry['categories'].append('Cloud')
-            
-            # Remove duplicates and sort categories
-            processed_entry['categories'] = sorted(list(set(processed_entry['categories'])))
-            
             # Extract key changes
             key_changes = []
             for sentence in content_lower.split('. '):
@@ -98,18 +81,23 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                     key_changes.append(sentence.strip() + '.')
             processed_entry['key_changes'] = key_changes[:5]  # Limit to top 5 changes
             
-            # Add to updates
-            updates_by_type[source_type][provider_name]['entries'].append(processed_entry)
+            # Add to platforms
+            platforms[platform_name]["entries"].append(processed_entry)
+        
+        # Remove 'unknown' platform if present
+        if 'unknown' in platforms:
+            logging.warning("Some entries have an unknown provider. These entries will be excluded.")
+            del platforms['unknown']
 
         # Setup Jinja2 environment
-        env = Environment(loader=FileSystemLoader(searchpath='./'))
+        env = Environment(loader=FileSystemLoader('.'))
         template = env.get_template(template_path)
         
         # Prepare template data
         template_data = {
             'date_range': f"{week_range[0].strftime('%B %d, %Y')} - {week_range[1].strftime('%B %d, %Y')}",
             'generation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'updates_by_type': updates_by_type,
+            'updates_by_source': platforms,
             'breaking_changes_count': stats['breaking_changes_count'],
             'security_updates_count': stats['security_updates_count'],
             'new_features_count': stats['new_features_count'],
@@ -127,13 +115,3 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
     except Exception as e:
         logging.error(f"Error generating HTML newsletter: {e}")
         raise
-
-def _get_impact_badge_class(impact):
-    """
-    Get the CSS class for impact badge.
-    """
-    return {
-        'HIGH': 'bg-red-500',
-        'MEDIUM': 'bg-yellow-500',
-        'LOW': 'bg-green-500'
-    }.get(impact, 'bg-blue-500')

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Weekly Update</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% include 'styles.html' %}
+</head>
+<body class="bg-gray-50 transition-colors duration-200">
+    {% include 'components/theme_toggle.html' %}
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        {% include 'components/header.html' %}
+        {% include 'components/stats.html' %}
+        {% include 'components/controls.html' %}
+        {% include 'components/updates.html' %}
+        {% include 'components/footer.html' %}
+    </div>
+
+    {% include 'scripts.html' %}
+</body>
+</html>
