@@ -12,7 +12,24 @@ permissions:
   contents: write
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install flake8
+
+      - name: Run flake8
+        run: flake8 src/ run_aggregator.py
+
   aggregate-and-publish:
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -30,14 +47,20 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run:  python run_aggregator.py
 
-      - name: Commit and push index.html to root of gh-pages branch
+      - name: Commit and push to gh-pages branch
         if: success()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout --orphan gh-pages  # Create a new orphan gh-pages branch
           git reset --hard  # Clear any existing content in gh-pages branch
-          cp dist/index.html ./index.html  # Copy index.html to root
-          git add index.html
-          git commit -m "Update index.html for DevOps News Aggregator"
+          
+          # Copy index.html and assets directory
+          cp dist/index.html ./index.html
+          mkdir -p assets/icons
+          cp -r dist/assets/icons/* assets/icons/
+          
+          # Add and commit all files
+          git add index.html assets/
+          git commit -m "Update DevOps News Aggregator content"
           git push -f origin gh-pages  # Force push to gh-pages branch

@@ -2,6 +2,7 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import logging
+import shutil
 from src.utils.icon_mapping import ICON_MAPPING
 
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
@@ -11,11 +12,11 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         
         # Copy local icons to the output directory
         for icon_file in ICON_MAPPING.values():
-            source_path = os.path.join('assets', 'icons', icon_file)
+            source_path = os.path.join('src', 'assets', 'icons', icon_file)
             dest_path = os.path.join(output_dir, 'assets', 'icons', icon_file)
             if os.path.exists(source_path):
-                with open(source_path, 'r', encoding='utf-8') as src, open(dest_path, 'w', encoding='utf-8') as dst:
-                    dst.write(src.read())
+                # Use shutil.copy2 to preserve metadata
+                shutil.copy2(source_path, dest_path)
                 logging.debug(f"Copied {source_path} to {dest_path}")
             else:
                 logging.error(f"Icon file {source_path} does not exist.")
