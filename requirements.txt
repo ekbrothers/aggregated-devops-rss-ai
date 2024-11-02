@@ -7,3 +7,6 @@ anthropic
 feedgenerator
 pytz
 flake8
+black
+isort
+pre-commit
