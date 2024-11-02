@@ -1,8 +1,6 @@
 # config.yml
 
-# RSS feeds for DevOps tool updates
 rss_feeds:
-  # Terraform Core and Providers
   "https://github.com/hashicorp/terraform/releases.atom":
     provider_name: "terraform"
     importance_keywords:
@@ -22,7 +20,6 @@ rss_feeds:
       - "BREAKING CHANGE"
       - "deprecation"
 
-  # Platform Status and Updates
   "https://www.githubstatus.com/history.atom":
     provider_name: "github"
     importance_keywords:
@@ -43,7 +40,7 @@ rss_feeds:
       - "api"
       
   "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
-    provider_name: "google"
+    provider_name: "googlecloud"
     importance_keywords:
       - "breaking"
       - "security"
@@ -55,7 +52,6 @@ rss_feeds:
       - "BREAKING CHANGE"
       - "security"
 
-# Manual sources requiring web scraping
 manual_sources:
   - provider_name: "openai"
     url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
@@ -69,7 +65,6 @@ manual_sources:
     url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
     type: "webpage"
 
-# Conference and event tracking configuration
 conferences:
   sources:
     - "https://www.hashicorp.com/events"      # HashiConf and other HashiCorp events

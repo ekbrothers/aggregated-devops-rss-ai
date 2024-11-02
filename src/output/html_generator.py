@@ -6,22 +6,33 @@ from src.utils.icon_mapping import ICON_MAPPING
 
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
     try:
-        os.makedirs(output_dir, exist_ok=True)
+        os.makedirs(os.path.join(output_dir, 'assets/icons'), exist_ok=True)
+        
+        # Copy local icons to the output directory
+        for icon_file in ICON_MAPPING.values():
+            source_path = os.path.join('assets', 'icons', icon_file)
+            dest_path = os.path.join(output_dir, 'assets', 'icons', icon_file)
+            if os.path.exists(source_path):
+                with open(source_path, 'r', encoding='utf-8') as src, open(dest_path, 'w', encoding='utf-8') as dst:
+                    dst.write(src.read())
+                logging.debug(f"Copied {source_path} to {dest_path}")
+            else:
+                logging.error(f"Icon file {source_path} does not exist.")
         
         # Organize entries by platform
         platforms = {}
         for entry in entries:
             platform_name = entry.get('provider_name', 'unknown').lower()
-            icon_slug = ICON_MAPPING.get(platform_name, 'question')  # Default to 'question' icon
-            platform_url = f"https://simpleicons.org/icons/{icon_slug}.svg"
+            icon_filename = ICON_MAPPING.get(platform_name, 'question.svg')  # Default to 'question.svg'
+            icon_path = f"assets/icons/{icon_filename}"
             
             # Log the mapping
-            logging.debug(f"Mapping provider '{platform_name}' to icon '{icon_slug}.svg'")
+            logging.debug(f"Mapping provider '{platform_name}' to icon '{icon_path}'")
             
             if platform_name not in platforms:
                 platforms[platform_name] = {
                     "entries": [],
-                    "icon_url": platform_url
+                    "icon_url": icon_path
                 }
             platforms[platform_name]["entries"].append({
                 "title": entry.get('title', 'No Title'),
@@ -34,7 +45,7 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         
         # Remove 'unknown' platform if not desired
         if 'unknown' in platforms:
-            logging.warning("Some entries have an unknown provider. Consider updating config.yml.")
+            logging.warning("Some entries have an unknown provider. These entries will be excluded from the Key Highlights.")
             del platforms['unknown']
 
         # Setup Jinja2 environment
