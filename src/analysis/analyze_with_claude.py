@@ -8,6 +8,14 @@ def analyze_entry(content, source, title, api_key):
     """
     Analyze a single entry using Claude AI.
     """
+    example_response = {
+        "summary": "This release introduces critical updates...",
+        "impact_level": "HIGH",
+        "key_changes": ["New feature X improves...", "Performance enhancements..."],
+        "action_items": ["Update to the latest version...", "Review new configuration options..."],
+        "affected_services": ["AWS", "Terraform"]
+    }
+
     prompt = f"""Analyze this DevOps update and provide a comprehensive summary, focusing on critical information for DevOps engineers.
 
 Source: {source}
@@ -22,13 +30,7 @@ Provide your response in JSON format with these fields:
 5. affected_services: Any relevant tools or platforms impacted.
 
 Example response:
-{
-  "summary": "This release introduces critical updates...",
-  "impact_level": "HIGH",
-  "key_changes": ["New feature X improves...", "Performance enhancements..."],
-  "action_items": ["Update to the latest version...", "Review new configuration options..."],
-  "affected_services": ["AWS", "Terraform"]
-}"""
+{json.dumps(example_response, indent=2)}"""
 
     try:
         client = Anthropic(api_key)
