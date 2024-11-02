@@ -36,15 +36,15 @@ def main():
         entry['analysis'] = analysis
 
         # Collect executive summaries
-        executive_summaries.append(analysis.get('summary', ''))
+        if analysis.get('summary'):
+            executive_summaries.append(analysis.get('summary'))
 
         # Collect action items
-        action_items.extend(analysis.get('action_items', []))
+        if analysis.get('action_items'):
+            action_items.extend(analysis.get('action_items'))
 
         # Collect additional resources (if any)
-        # This can be customized based on your needs
-        # For example, extract links from analysis or predefined resources
-        # Here, we'll add a placeholder
+        # Customize this as needed
         additional_resources.append({
             'name': f"{source} Documentation",
             'link': entry.get('link', '#')
@@ -75,6 +75,9 @@ def generate_consolidated_summary(summaries, api_key):
     """
     Generates a consolidated executive summary from individual summaries using Claude AI.
     """
+    if not summaries:
+        return "No executive summary available."
+
     prompt = f"""Consolidate the following summaries into a cohesive executive summary for a weekly DevOps update:
 
 {chr(10).join(summaries)}

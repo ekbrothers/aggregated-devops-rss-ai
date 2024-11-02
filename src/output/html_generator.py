@@ -2,6 +2,7 @@
 from jinja2 import Environment, FileSystemLoader
 import os
 import logging
+from src.utils.icon_mapping import ICON_MAPPING
 
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
     try:
@@ -10,8 +11,9 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         # Organize entries by platform
         platforms = {}
         for entry in entries:
-            platform_name = entry.get('provider_name', 'Unknown Platform')
-            platform_url = f"https://simpleicons.org/icons/{platform_name.lower().replace(' ', '')}.svg"
+            platform_name = entry.get('provider_name', 'unknown')
+            icon_slug = ICON_MAPPING.get(platform_name.lower(), 'question')  # Default to 'question' icon
+            platform_url = f"https://simpleicons.org/icons/{icon_slug}.svg"
             
             if platform_name not in platforms:
                 platforms[platform_name] = {

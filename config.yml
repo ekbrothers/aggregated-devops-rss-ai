@@ -4,68 +4,68 @@
 rss_feeds:
   # Terraform Core and Providers
   "https://github.com/hashicorp/terraform/releases.atom":
-    name: "Terraform CLI"
+    provider_name: "terraform"
     importance_keywords:
       - "BREAKING CHANGE"
       - "security fix"
       - "vulnerability"
   
   "https://github.com/hashicorp/terraform-provider-google/releases.atom":
-    name: "GCP Provider"
+    provider_name: "terraform-provider-google"
     importance_keywords:
       - "BREAKING CHANGE"
       - "deprecation"
       
   "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
-    name: "Azure Provider"
+    provider_name: "terraform-provider-azurerm"
     importance_keywords:
       - "BREAKING CHANGE"
       - "deprecation"
 
   # Platform Status and Updates
   "https://www.githubstatus.com/history.atom":
-    name: "GitHub Status"
+    provider_name: "github"
     importance_keywords:
       - "outage"
       - "degraded performance"
       
   "https://status.hashicorp.com/history.atom":
-    name: "HashiCorp Status"
+    provider_name: "hashicorp"
     importance_keywords:
       - "outage"
       - "degraded performance"
       
   "https://github.blog/changelog/feed/":
-    name: "GitHub Changelog"
+    provider_name: "github"
     importance_keywords:
       - "security"
       - "actions"
       - "api"
       
   "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
-    name: "GCP Terraform Updates"
+    provider_name: "google-cloud"
     importance_keywords:
       - "breaking"
       - "security"
       - "feature"
 
   "https://github.com/terraform-docs/terraform-docs/releases.atom":
-    name: "terraform-docs"
+    provider_name: "terraform-docs"
     importance_keywords:
       - "BREAKING CHANGE"
       - "security"
 
 # Manual sources requiring web scraping
 manual_sources:
-  - name: "ChatGPT Updates"
+  - provider_name: "openai"
     url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
     type: "webpage"
-    
-  - name: "Claude Updates"
+      
+  - provider_name: "anthropic"
     url: "https://www.anthropic.com/news"
     type: "webpage"
-    
-  - name: "Azure DevOps Updates"
+      
+  - provider_name: "azure-devops"
     url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
     type: "webpage"
 
