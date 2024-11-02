@@ -5,54 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DevOps Weekly Update</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for impact levels */
+        .impact-high { border-left-color: #ef4444; } /* Red */
+        .impact-medium { border-left-color: #f59e0b; } /* Amber */
+        .impact-low { border-left-color: #10b981; } /* Green */
+    </style>
 </head>
 <body class="bg-gray-50">
-    <div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
         <header class="text-center mb-12">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">DevOps Weekly Update</h1>
-            <p class="text-xl text-gray-600">{{ week_range }}</p>
+            <h1 class="text-5xl font-extrabold text-gray-900 mb-4">DevOps Weekly Update</h1>
+            <p class="text-lg text-gray-600">{{ week_range }}</p>
         </header>
 
-        {% for platform, details in platforms.items() %}
+        <!-- Executive Summary -->
         <section class="mb-12">
-            <div class="flex items-center mb-6">
-                <img src="{{ details.icon_url }}" alt="{{ platform }} logo" class="w-8 h-8 mr-3">
-                <h2 class="text-2xl font-bold text-gray-900">{{ platform }} Updates</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Executive Summary</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <p class="text-gray-700">{{ executive_summary }}</p>
             </div>
-            
-            {% for entry in details.entries %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 mb-6" style="border-color: {% if entry.impact_level == 'HIGH' %}red{% elif entry.impact_level == 'MEDIUM' %}yellow{% else %}blue{% endif %}">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ entry.title }}</h3>
-                    <p class="text-gray-600 my-2">{{ entry.summary }}</p>
-                    
-                    {% if entry.key_changes %}
-                    <h4 class="font-semibold text-gray-900 mt-4">Key Changes:</h4>
-                    <ul class="list-disc list-inside text-gray-600">
-                        {% for change in entry.key_changes %}
-                        <li>{{ change }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
+        </section>
 
-                    {% if entry.action_items %}
-                    <h4 class="font-semibold text-gray-900 mt-4">Action Items:</h4>
-                    <ul class="list-disc list-inside text-gray-600">
-                        {% for item in entry.action_items %}
-                        <li>{{ item }}</li>
-                        {% endfor %}
-                    </ul>
-                    {% endif %}
-                    
-                    <div class="mt-4">
-                        <a href="{{ entry.link }}" class="text-blue-600 hover:text-blue-800">Read more →</a>
+        <!-- Key Highlights -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Key Highlights</h2>
+            {% for platform, data in platforms.items() %}
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <img src="{{ data.icon_url }}" alt="{{ platform }} logo" class="w-10 h-10 mr-3">
+                        <h3 class="text-2xl font-semibold text-gray-800">{{ platform }} Updates</h3>
                     </div>
+                    {% for entry in data.entries %}
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 mb-4 {% if entry.impact_level == 'HIGH' %}impact-high{% elif entry.impact_level == 'MEDIUM' %}impact-medium{% else %}impact-low{% endif %}">
+                            <div class="p-6">
+                                <div class="flex justify-between items-center">
+                                    <h4 class="text-xl font-semibold text-gray-900">{{ entry.title }}</h4>
+                                    <span class="text-sm font-medium text-white px-2 py-1 rounded {{ 'bg-red-500' if entry.impact_level == 'HIGH' else ('bg-yellow-500' if entry.impact_level == 'MEDIUM' else 'bg-green-500') }}">
+                                        {{ entry.impact_level }}
+                                    </span>
+                                </div>
+                                <p class="text-gray-700 my-2">{{ entry.summary }}</p>
+                                <ul class="list-disc list-inside text-gray-700">
+                                    {% for change in entry.key_changes %}
+                                        <li>{{ change }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="mt-4">
+                                    <a href="{{ entry.link }}" class="text-blue-600 hover:text-blue-800">Read more →</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-            </div>
             {% endfor %}
         </section>
-        {% endfor %}
-        
+
+        <!-- Action Items -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Action Items</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for action in action_items %}
+                        <li>{{ action }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <!-- Additional Resources -->
+        <section class="mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">Additional Resources</h2>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <ul class="list-disc list-inside text-gray-700">
+                    {% for resource in additional_resources %}
+                        <li><a href="{{ resource.link }}" class="text-blue-600 hover:text-blue-800">{{ resource.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12">
+            <p class="text-gray-600">Stay updated with the latest DevOps trends and updates.</p>
+            <p class="text-gray-600">Contact us at <a href="mailto:devops-team@example.com" class="text-blue-600 hover:text-blue-800">devops-team@example.com</a></p>
+        </footer>
     </div>
 </body>
 </html>

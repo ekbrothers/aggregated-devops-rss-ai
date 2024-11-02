@@ -18,14 +18,13 @@ Provide your response in JSON format with these fields:
 5. affected_services: Any relevant tools or platforms impacted.
 
 Example response:
-{{
+{
   "summary": "This release introduces critical updates...",
   "impact_level": "HIGH",
   "key_changes": ["New feature X improves...", "Performance enhancements..."],
   "action_items": ["Update to the latest version...", "Review new configuration options..."],
   "affected_services": ["AWS", "Terraform"]
-}}"""
-
+}"""
     try:
         client = Anthropic(api_key)
         response = client.completions.create(
@@ -35,6 +34,7 @@ Example response:
             stop_sequences=["}"]
         )
         response_text = response['completion'].strip()
+        # Ensure the JSON is properly closed
         if not response_text.endswith('}'):
             response_text += "}"
         analysis = json.loads(response_text)

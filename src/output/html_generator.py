@@ -3,7 +3,7 @@ from jinja2 import Environment, FileSystemLoader
 import os
 import logging
 
-def generate_html(entries, week_range, template_path='newsletter_template.html', output_dir='dist'):
+def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
     try:
         os.makedirs(output_dir, exist_ok=True)
         
@@ -36,7 +36,10 @@ def generate_html(entries, week_range, template_path='newsletter_template.html',
         end_date = week_range[1].strftime('%B %d, %Y')
         template_data = {
             'week_range': f"{start_date} - {end_date}",
-            'platforms': platforms
+            'platforms': platforms,
+            'executive_summary': executive_summary,
+            'action_items': action_items,
+            'additional_resources': additional_resources
         }
         
         # Render HTML
