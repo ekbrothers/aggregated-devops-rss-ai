@@ -1,74 +1,71 @@
-# config.yml
+sources:
+  terraform_providers:
+    - name: "Azure Provider"
+      type: "terraform_provider"
+      url: "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom"
+      provider_name: "github.com"
+      
+    - name: "AWS Provider"
+      type: "terraform_provider"
+      url: "https://github.com/hashicorp/terraform-provider-aws/releases.atom"
+      provider_name: "github.com"
+      
+    - name: "Google Cloud Provider"
+      type: "terraform_provider"
+      url: "https://github.com/hashicorp/terraform-provider-google/releases.atom"
+      provider_name: "github.com"
 
-rss_feeds:
-  # Terraform Core and Providers
-  "https://github.com/hashicorp/terraform/releases.atom":
-    provider_name: "terraform"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "security fix"
-      - "vulnerability"
-  
-  "https://github.com/hashicorp/terraform-provider-google/releases.atom":
-    provider_name: "terraform"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "deprecation"
+  vcs_platforms:
+    - name: "GitHub"
+      type: "vcs"
+      url: "https://github.blog/changelog/feed/"
+      provider_name: "github.blog"
+      status_url: "https://www.githubstatus.com/"
       
-  "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
-    provider_name: "terraform"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "deprecation"
+    - name: "GitLab"
+      type: "vcs"
+      url: "https://about.gitlab.com/releases/feed.xml"
+      provider_name: "gitlab"
+      status_url: "https://status.gitlab.com/"
+      
+    - name: "Azure DevOps"
+      type: "vcs"
+      url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
+      provider_name: "azuredevops"
+      status_url: "https://status.dev.azure.com/"
+      manual: true
 
-  # Platform Status and Updates
-  "https://www.githubstatus.com/history.atom":
-    provider_name: "github"
-    importance_keywords:
-      - "outage"
-      - "degraded performance"
+  ai_tools:
+    - name: "OpenAI"
+      type: "ai"
+      url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
+      provider_name: "openai"
+      manual: true
       
-  "https://status.hashicorp.com/history.atom":
-    provider_name: "hashicorp"
-    importance_keywords:
-      - "outage"
-      - "degraded performance"
+    - name: "Anthropic"
+      type: "ai"
+      url: "https://www.anthropic.com/news"
+      provider_name: "anthropic"
+      manual: true
       
-  "https://github.blog/changelog/feed/":
-    provider_name: "github"
-    importance_keywords:
-      - "security"
-      - "actions"
-      - "api"
-      
-  "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
-    provider_name: "googlecloud"
-    importance_keywords:
-      - "breaking"
-      - "security"
-      - "feature"
+    - name: "GitHub Copilot"
+      type: "ai"
+      url: "https://github.blog/changelog/feed/"
+      provider_name: "github.blog"
+      filter_keywords: ["copilot"]
 
-  "https://github.com/terraform-docs/terraform-docs/releases.atom":
-    provider_name: "terraform"
-    importance_keywords:
-      - "BREAKING CHANGE"
-      - "security"
-
-manual_sources:
-  - provider_name: "openai"
-    url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
-    type: "webpage"
+  devops_tools:
+    - name: "HashiCorp Vault"
+      type: "security"
+      url: "https://github.com/hashicorp/vault/releases.atom"
+      provider_name: "github.com"
       
-  - provider_name: "anthropic"
-    url: "https://www.anthropic.com/news"
-    type: "webpage"
-      
-  - provider_name: "azuredevops"
-    url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
-    type: "webpage"
+    - name: "Terraform"
+      type: "infrastructure"
+      url: "https://github.com/hashicorp/terraform/releases.atom"
+      provider_name: "github.com"
 
-conferences:
-  sources:
-    - "https://www.hashicorp.com/events"      # HashiConf and other HashiCorp events
-    - "https://cloud.google.com/next"         # Google Cloud Next
-    - "https://www.microsoft.com/en-us/ignite"  # Microsoft Ignite
+settings:
+  weeks_to_fetch: 2  # Number of weeks of updates to fetch
+  cache_duration: 3600  # Cache duration in seconds
+  output_dir: "dist"  # Output directory for generated files
