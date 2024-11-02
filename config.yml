@@ -43,7 +43,7 @@ rss_feeds:
       - "api"
       
   "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
-    provider_name: "googlecloud"
+    provider_name: "google"
     importance_keywords:
       - "breaking"
       - "security"

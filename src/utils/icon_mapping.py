@@ -4,7 +4,7 @@ ICON_MAPPING = {
     "terraform": "terraform",
     "hashicorp": "hashicorp",
     "github": "github",
-    "googlecloud": "googlecloud",
+    "google": "google",
     "openai": "openai",
     "anthropic": "anthropic",
     "azuredevops": "azuredevops",
