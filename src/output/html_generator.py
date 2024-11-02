@@ -6,6 +6,7 @@ from src.utils.icon_mapping import ICON_MAPPING
 
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
     try:
+        # Create necessary directories
         os.makedirs(os.path.join(output_dir, 'assets/icons'), exist_ok=True)
         
         # Copy local icons to the output directory

@@ -1,6 +1,7 @@
 # config.yml
 
 rss_feeds:
+  # Terraform Core and Providers
   "https://github.com/hashicorp/terraform/releases.atom":
     provider_name: "terraform"
     importance_keywords:
@@ -20,6 +21,7 @@ rss_feeds:
       - "BREAKING CHANGE"
       - "deprecation"
 
+  # Platform Status and Updates
   "https://www.githubstatus.com/history.atom":
     provider_name: "github"
     importance_keywords:

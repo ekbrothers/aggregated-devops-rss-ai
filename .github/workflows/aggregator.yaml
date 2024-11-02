@@ -1,4 +1,5 @@
 name: DevOps News Aggregator
+
 on:
   schedule:
     - cron: '0 15 * * 5'  # 3 PM UTC every Friday
@@ -15,8 +16,11 @@ jobs:
   aggregate-and-publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Ensure full history is fetched for branch operations
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -28,16 +32,30 @@ jobs:
       - name: Run aggregator
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run:  python run_aggregator.py
+        run: python run_aggregator.py
 
-      - name: Commit and push index.html to root of gh-pages branch
+      - name: Prepare gh-pages Branch
         if: success()
         run: |
+          # Configure Git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout --orphan gh-pages  # Create a new orphan gh-pages branch
-          git reset --hard  # Clear any existing content in gh-pages branch
-          cp dist/index.html ./index.html  # Copy index.html to root
-          git add index.html
-          git commit -m "Update index.html for DevOps News Aggregator"
-          git push -f origin gh-pages  # Force push to gh-pages branch
+
+          # Create or switch to gh-pages branch
+          git checkout gh-pages || git checkout --orphan gh-pages
+
+          # Remove all existing files
+          git rm -rf .
+
+          # Copy new build files from dist/ to root of gh-pages
+          cp -R dist/* .
+
+          # Add all files to Git
+          git add .
+
+          # Commit changes
+          git commit -m "Update DevOps Weekly Update for $(date +'%Y-%m-%d')"
+
+      - name: Push to gh-pages
+        if: success()
+        run: git push -f origin gh-pages
