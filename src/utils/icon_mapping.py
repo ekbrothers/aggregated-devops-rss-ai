@@ -2,14 +2,11 @@
 
 ICON_MAPPING = {
     "terraform": "terraform",
-    "terraform-provider-google": "terraform",
-    "terraform-provider-azurerm": "terraform",
-    "github": "github",
     "hashicorp": "hashicorp",
-    "google-cloud": "googlecloud",
-    "terraform-docs": "terraform",
+    "github": "github",
+    "googlecloud": "googlecloud",
     "openai": "openai",
     "anthropic": "anthropic",
-    "azure-devops": "azuredevops"
+    "azuredevops": "azuredevops",
     # Add more mappings as needed
 }

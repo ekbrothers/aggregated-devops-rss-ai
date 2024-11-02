@@ -30,34 +30,43 @@ def main():
 
     for entry in entries:
         content = entry.get('content', '')
-        source = entry.get('provider_name', 'Unknown Platform')
+        source = entry.get('provider_name', 'unknown')
         title = entry.get('title', 'Untitled')
         analysis = analyze_entry(content, source, title, api_key)
         entry['analysis'] = analysis
 
         # Collect executive summaries
-        if analysis.get('summary'):
-            executive_summaries.append(analysis.get('summary'))
+        summary = analysis.get('summary')
+        if summary and summary != "No summary available.":
+            executive_summaries.append(summary)
+            logger.debug(f"Collected summary for '{title}': {summary}")
+        else:
+            logger.warning(f"No summary available for entry '{title}'.")
 
         # Collect action items
-        if analysis.get('action_items'):
-            action_items.extend(analysis.get('action_items'))
+        action = analysis.get('action_items')
+        if action:
+            action_items.extend(action)
+            logger.debug(f"Collected action items for '{title}': {action}")
 
-        # Collect additional resources (if any)
+        # Collect additional resources
         # Customize this as needed
         additional_resources.append({
-            'name': f"{source} Documentation",
+            'name': f"{source.capitalize()} Documentation",
             'link': entry.get('link', '#')
         })
 
     # Generate a consolidated executive summary using Claude AI
     consolidated_summary = generate_consolidated_summary(executive_summaries, api_key)
+    logger.debug(f"Consolidated Executive Summary: {consolidated_summary}")
 
     # Remove duplicate action items
     unique_action_items = list(set(action_items))
+    logger.debug(f"Unique Action Items: {unique_action_items}")
 
     # Remove duplicate additional resources
     unique_additional_resources = [dict(t) for t in {tuple(d.items()) for d in additional_resources}]
+    logger.debug(f"Unique Additional Resources: {unique_additional_resources}")
 
     # Generate outputs
     generate_html(
@@ -76,6 +85,7 @@ def generate_consolidated_summary(summaries, api_key):
     Generates a consolidated executive summary from individual summaries using Claude AI.
     """
     if not summaries:
+        logging.warning("No individual summaries available to generate an executive summary.")
         return "No executive summary available."
 
     prompt = f"""Consolidate the following summaries into a cohesive executive summary for a weekly DevOps update:
@@ -94,6 +104,7 @@ Provide the consolidated summary in 3-4 sentences."""
         )
         consolidated_summary = response['completion'].strip()
         logging.info("Consolidated executive summary generated.")
+        logging.debug(f"Consolidated Summary: {consolidated_summary}")
         return consolidated_summary
     except Exception as e:
         logging.error(f"Error generating consolidated summary: {e}")

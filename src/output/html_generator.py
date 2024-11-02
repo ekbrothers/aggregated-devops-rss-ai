@@ -11,9 +11,12 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         # Organize entries by platform
         platforms = {}
         for entry in entries:
-            platform_name = entry.get('provider_name', 'unknown')
-            icon_slug = ICON_MAPPING.get(platform_name.lower(), 'question')  # Default to 'question' icon
+            platform_name = entry.get('provider_name', 'unknown').lower()
+            icon_slug = ICON_MAPPING.get(platform_name, 'question')  # Default to 'question' icon
             platform_url = f"https://simpleicons.org/icons/{icon_slug}.svg"
+            
+            # Log the mapping
+            logging.debug(f"Mapping provider '{platform_name}' to icon '{icon_slug}.svg'")
             
             if platform_name not in platforms:
                 platforms[platform_name] = {
@@ -29,6 +32,11 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                 "action_items": entry['analysis'].get('action_items', [])
             })
         
+        # Remove 'unknown' platform if not desired
+        if 'unknown' in platforms:
+            logging.warning("Some entries have an unknown provider. Consider updating config.yml.")
+            del platforms['unknown']
+
         # Setup Jinja2 environment
         env = Environment(loader=FileSystemLoader(searchpath='./'))
         template = env.get_template(template_path)

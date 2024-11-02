@@ -11,13 +11,13 @@ rss_feeds:
       - "vulnerability"
   
   "https://github.com/hashicorp/terraform-provider-google/releases.atom":
-    provider_name: "terraform-provider-google"
+    provider_name: "terraform"
     importance_keywords:
       - "BREAKING CHANGE"
       - "deprecation"
       
   "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom":
-    provider_name: "terraform-provider-azurerm"
+    provider_name: "terraform"
     importance_keywords:
       - "BREAKING CHANGE"
       - "deprecation"
@@ -43,14 +43,14 @@ rss_feeds:
       - "api"
       
   "https://cloud.google.com/feeds/gcp-terraform-release-notes.xml":
-    provider_name: "google-cloud"
+    provider_name: "googlecloud"
     importance_keywords:
       - "breaking"
       - "security"
       - "feature"
 
   "https://github.com/terraform-docs/terraform-docs/releases.atom":
-    provider_name: "terraform-docs"
+    provider_name: "terraform"
     importance_keywords:
       - "BREAKING CHANGE"
       - "security"
@@ -65,7 +65,7 @@ manual_sources:
     url: "https://www.anthropic.com/news"
     type: "webpage"
       
-  - provider_name: "azure-devops"
+  - provider_name: "azuredevops"
     url: "https://learn.microsoft.com/en-us/azure/devops/release-notes/"
     type: "webpage"
 
