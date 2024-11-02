@@ -1,140 +1,136 @@
 import json
+import logging
+from anthropic import Anthropic
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List
 
-def analyze_updates(updates: List[Dict]) -> Dict:
+def analyze_entry(content, source, title, api_key):
     """
-    Analyze updates and generate structured data for the HTML template.
+    Analyze a single entry using Claude AI.
     """
-    analyzed_data = {
-        'date_range': _get_date_range(updates),
-        'generation_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'updates_by_source': {},
-        'executive_summary': '',
-        'action_items': [],
-        'breaking_changes_count': 0,
-        'security_updates_count': 0,
-        'new_features_count': 0,
-        'total_updates_count': len(updates)
-    }
+    prompt = f"""Analyze this DevOps update and provide a comprehensive summary, focusing on critical information for DevOps engineers.
 
-    # Group updates by source
-    for update in updates:
-        source = update['source']
-        if source not in analyzed_data['updates_by_source']:
-            analyzed_data['updates_by_source'][source] = []
+Source: {source}
+Title: {title}
+Content: {content}
+
+Provide your response in JSON format with these fields:
+1. summary: A 3-5 sentence summary explaining the core update.
+2. impact_level: HIGH, MEDIUM, or LOW depending on the urgency for DevOps teams to act.
+3. key_changes: A list of 2-3 main changes or new features.
+4. action_items: Actionable points that DevOps teams should consider.
+5. affected_services: Any relevant tools or platforms impacted.
+
+Example response:
+{
+  "summary": "This release introduces critical updates...",
+  "impact_level": "HIGH",
+  "key_changes": ["New feature X improves...", "Performance enhancements..."],
+  "action_items": ["Update to the latest version...", "Review new configuration options..."],
+  "affected_services": ["AWS", "Terraform"]
+}"""
+
+    try:
+        client = Anthropic(api_key)
+        response = client.completions.create(
+            model="claude-v1",
+            prompt=prompt,
+            max_tokens=500,
+            stop_sequences=["}"]
+        )
+        response_text = response.completion.strip()
         
-        # Analyze update content
-        analyzed_update = _analyze_single_update(update)
+        # Ensure the JSON is properly closed
+        if not response_text.endswith('}'):
+            response_text += "}"
         
-        # Update counts
-        if 'Breaking Change' in analyzed_update['categories']:
-            analyzed_data['breaking_changes_count'] += 1
-        if 'Security' in analyzed_update['categories']:
-            analyzed_data['security_updates_count'] += 1
-        if 'New Feature' in analyzed_update['categories']:
-            analyzed_data['new_features_count'] += 1
-            
-        analyzed_data['updates_by_source'][source].append(analyzed_update)
+        logging.debug(f"Claude AI raw response for '{title}': {response_text}")
         
-        # Collect action items
-        if analyzed_update['action_items']:
-            analyzed_data['action_items'].extend(analyzed_update['action_items'])
+        # Parse the JSON response
+        analysis = json.loads(response_text)
+        
+        # Enhance the analysis with additional processing
+        enhanced_analysis = _enhance_analysis(analysis, title, content)
+        
+        logging.info(f"Analyzed entry: {title} - Impact level: {enhanced_analysis.get('impact_level', 'None')}")
+        return enhanced_analysis
+        
+    except json.JSONDecodeError as e:
+        logging.error(f"JSON decode error for entry '{title}': {e}")
+        logging.error(f"Response Text: {response_text}")
+        return _get_default_analysis()
+    except Exception as e:
+        logging.error(f"Error analyzing entry '{title}': {e}")
+        return _get_default_analysis()
 
-    # Generate executive summary
-    analyzed_data['executive_summary'] = _generate_executive_summary(analyzed_data)
-
-    return analyzed_data
-
-def _analyze_single_update(update: Dict) -> Dict:
+def _enhance_analysis(analysis: Dict, title: str, content: str) -> Dict:
     """
-    Analyze a single update and structure its data.
+    Enhance the basic analysis with additional processing.
     """
     # Determine impact level and categories
-    impact, categories = _analyze_impact_and_categories(update['content'])
+    impact_level = analysis.get('impact_level', 'LOW')
+    categories = _determine_categories(analysis, content)
     
-    # Extract key changes and action items
-    key_changes = _extract_key_changes(update['content'])
-    action_items = _extract_action_items(update['content'])
+    # Extract key changes if none provided
+    key_changes = analysis.get('key_changes', [])
+    if not key_changes:
+        key_changes = _extract_key_changes(content)
     
-    # Generate summary
-    summary = _generate_summary(update['content'])
-
+    # Extract action items if none provided
+    action_items = analysis.get('action_items', [])
+    if not action_items:
+        action_items = _extract_action_items(content)
+    
     return {
-        'title': update['title'],
-        'url': update['url'],
-        'date': update['date'],
-        'impact': impact,
-        'impact_class': f'impact-{impact.lower()}',
-        'impact_badge_class': _get_impact_badge_class(impact),
-        'categories': categories,
-        'summary': summary,
+        'summary': analysis.get('summary', 'No summary available.'),
+        'impact_level': impact_level,
         'key_changes': key_changes,
-        'action_items': action_items
+        'action_items': action_items,
+        'affected_services': analysis.get('affected_services', []),
+        'categories': categories
     }
 
-def _analyze_impact_and_categories(content: str) -> tuple[str, List[str]]:
+def _determine_categories(analysis: Dict, content: str) -> List[str]:
     """
-    Analyze content to determine impact level and categories.
-    Returns tuple of (impact_level, categories).
+    Determine categories based on analysis content.
     """
-    # Default values
-    impact = 'Low'
-    categories = []
+    categories = set()
     
-    # Keywords indicating high impact
-    high_impact_keywords = [
-        'breaking change', 'critical', 'security vulnerability',
-        'urgent', 'immediate action', 'major version'
-    ]
+    # Add categories based on affected services
+    for service in analysis.get('affected_services', []):
+        if service.lower() in ['aws', 'azure', 'gcp']:
+            categories.add('Cloud')
+        elif service.lower() in ['kubernetes', 'docker']:
+            categories.add('Infrastructure')
+        elif service.lower() in ['jenkins', 'gitlab', 'github']:
+            categories.add('CI/CD')
     
-    # Keywords indicating medium impact
-    medium_impact_keywords = [
-        'deprecation', 'upgrade recommended', 'performance improvement',
-        'new feature', 'enhancement'
-    ]
+    # Add categories based on impact and content
+    impact = analysis.get('impact_level', '').upper()
+    if impact == 'HIGH':
+        categories.add('Breaking Change')
     
-    # Category keywords
-    category_keywords = {
-        'Infrastructure': ['kubernetes', 'docker', 'infrastructure', 'helm'],
-        'CI/CD': ['pipeline', 'ci/cd', 'continuous integration', 'deployment'],
-        'Security': ['security', 'vulnerability', 'authentication', 'authorization'],
-        'Cloud': ['aws', 'azure', 'gcp', 'cloud'],
-        'Tools': ['tool', 'plugin', 'extension', 'utility'],
-        'Breaking Change': ['breaking change', 'major version'],
-        'New Feature': ['new feature', 'added', 'introduced'],
-        'Performance': ['performance', 'optimization', 'speed'],
-        'Documentation': ['documentation', 'docs', 'guide']
-    }
-    
+    # Look for security-related content
     content_lower = content.lower()
+    if any(word in content_lower for word in ['security', 'vulnerability', 'cve']):
+        categories.add('Security')
     
-    # Determine impact
-    if any(keyword in content_lower for keyword in high_impact_keywords):
-        impact = 'High'
-    elif any(keyword in content_lower for keyword in medium_impact_keywords):
-        impact = 'Medium'
-    
-    # Determine categories
-    for category, keywords in category_keywords.items():
-        if any(keyword in content_lower for keyword in keywords):
-            categories.append(category)
+    # Look for new features
+    if any(change.lower().startswith(('add', 'new', 'introduce')) 
+           for change in analysis.get('key_changes', [])):
+        categories.add('New Feature')
     
     # Ensure at least one category
     if not categories:
-        categories.append('General')
+        categories.add('General')
     
-    return impact, categories
+    return sorted(list(categories))
 
 def _extract_key_changes(content: str) -> List[str]:
     """
     Extract key changes from content.
     """
-    # This is a simplified version - in practice, you'd want to use more sophisticated
-    # NLP techniques to extract meaningful changes
     changes = []
-    
-    # Split content into sentences and look for relevant ones
     sentences = content.split('. ')
     for sentence in sentences:
         if any(keyword in sentence.lower() for keyword in [
@@ -149,11 +145,7 @@ def _extract_action_items(content: str) -> List[str]:
     """
     Extract action items from content.
     """
-    # This is a simplified version - in practice, you'd want to use more sophisticated
-    # NLP techniques to extract actionable items
     actions = []
-    
-    # Split content into sentences and look for relevant ones
     sentences = content.split('. ')
     for sentence in sentences:
         if any(keyword in sentence.lower() for keyword in [
@@ -164,56 +156,15 @@ def _extract_action_items(content: str) -> List[str]:
     
     return actions
 
-def _generate_summary(content: str) -> str:
+def _get_default_analysis() -> Dict:
     """
-    Generate a concise summary of the content.
-    """
-    # This is a simplified version - in practice, you'd want to use more sophisticated
-    # NLP techniques to generate summaries
-    sentences = content.split('. ')
-    summary = '. '.join(sentences[:3]) + '.'
-    return summary
-
-def _generate_executive_summary(data: Dict) -> str:
-    """
-    Generate an executive summary based on the analyzed data.
-    """
-    summary_parts = []
-    
-    # Overview
-    summary_parts.append(f"This week's update includes {data['total_updates_count']} changes across various DevOps tools and platforms.")
-    
-    # Highlight significant changes
-    if data['breaking_changes_count'] > 0:
-        summary_parts.append(f"There are {data['breaking_changes_count']} breaking changes that require immediate attention.")
-    
-    if data['security_updates_count'] > 0:
-        summary_parts.append(f"There are {data['security_updates_count']} security-related updates.")
-    
-    if data['new_features_count'] > 0:
-        summary_parts.append(f"There are {data['new_features_count']} new features or enhancements.")
-    
-    # Action items summary
-    if data['action_items']:
-        summary_parts.append(f"There are {len(data['action_items'])} action items that require review.")
-    
-    return ' '.join(summary_parts)
-
-def _get_date_range(updates: List[Dict]) -> str:
-    """
-    Get the date range for the updates.
-    """
-    dates = [datetime.strptime(update['date'], '%Y-%m-%d') for update in updates]
-    start_date = min(dates)
-    end_date = max(dates)
-    return f"{start_date.strftime('%B %d, %Y')} - {end_date.strftime('%B %d, %Y')}"
-
-def _get_impact_badge_class(impact: str) -> str:
-    """
-    Get the CSS class for impact badge.
+    Get default analysis structure for error cases.
     """
     return {
-        'High': 'bg-red-500',
-        'Medium': 'bg-yellow-500',
-        'Low': 'bg-green-500'
-    }.get(impact, 'bg-blue-500')
+        'summary': 'No summary available.',
+        'impact_level': 'LOW',
+        'key_changes': [],
+        'action_items': [],
+        'affected_services': [],
+        'categories': ['General']
+    }
