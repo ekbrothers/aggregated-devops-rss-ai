@@ -4,7 +4,7 @@ from anthropic import Anthropic
 from datetime import datetime
 from typing import Dict, List
 
-def analyze_entry(content, source, title, api_key):
+def analyze_entry(content: str, source: str, title: str, api_key: str) -> Dict:
     """
     Analyze a single entry using Claude AI.
     """
@@ -48,19 +48,34 @@ Example response:
         
         logging.debug(f"Claude AI raw response for '{title}': {response_text}")
         
-        # Parse the JSON response
-        analysis = json.loads(response_text)
-        
-        # Enhance the analysis with additional processing
-        enhanced_analysis = _enhance_analysis(analysis, title, content)
-        
-        logging.info(f"Analyzed entry: {title} - Impact level: {enhanced_analysis.get('impact_level', 'None')}")
-        return enhanced_analysis
-        
-    except json.JSONDecodeError as e:
-        logging.error(f"JSON decode error for entry '{title}': {e}")
-        logging.error(f"Response Text: {response_text}")
-        return _get_default_analysis()
+        try:
+            # Parse the JSON response
+            analysis = json.loads(response_text)
+            
+            # Validate required fields
+            required_fields = ['summary', 'impact_level', 'key_changes', 'action_items', 'affected_services']
+            for field in required_fields:
+                if field not in analysis:
+                    analysis[field] = [] if field in ['key_changes', 'action_items', 'affected_services'] else ''
+            
+            # Ensure all fields are strings or lists
+            analysis['summary'] = str(analysis.get('summary', ''))
+            analysis['impact_level'] = str(analysis.get('impact_level', 'LOW')).upper()
+            analysis['key_changes'] = [str(change) for change in analysis.get('key_changes', [])]
+            analysis['action_items'] = [str(item) for item in analysis.get('action_items', [])]
+            analysis['affected_services'] = [str(service) for service in analysis.get('affected_services', [])]
+            
+            # Enhance the analysis with additional processing
+            enhanced_analysis = _enhance_analysis(analysis, title, content)
+            
+            logging.info(f"Analyzed entry: {title} - Impact level: {enhanced_analysis.get('impact_level', 'None')}")
+            return enhanced_analysis
+            
+        except json.JSONDecodeError as e:
+            logging.error(f"JSON decode error for entry '{title}': {e}")
+            logging.error(f"Response Text: {response_text}")
+            return _get_default_analysis()
+            
     except Exception as e:
         logging.error(f"Error analyzing entry '{title}': {e}")
         return _get_default_analysis()
@@ -84,11 +99,11 @@ def _enhance_analysis(analysis: Dict, title: str, content: str) -> Dict:
         action_items = _extract_action_items(content)
     
     return {
-        'summary': analysis.get('summary', 'No summary available.'),
-        'impact_level': impact_level,
-        'key_changes': key_changes,
-        'action_items': action_items,
-        'affected_services': analysis.get('affected_services', []),
+        'summary': str(analysis.get('summary', 'No summary available.')),
+        'impact_level': str(impact_level).upper(),
+        'key_changes': [str(change) for change in key_changes],
+        'action_items': [str(item) for item in action_items],
+        'affected_services': [str(service) for service in analysis.get('affected_services', [])],
         'categories': categories
     }
 
@@ -97,28 +112,29 @@ def _determine_categories(analysis: Dict, content: str) -> List[str]:
     Determine categories based on analysis content.
     """
     categories = set()
+    content_lower = content.lower()
     
     # Add categories based on affected services
     for service in analysis.get('affected_services', []):
-        if service.lower() in ['aws', 'azure', 'gcp']:
+        service_lower = str(service).lower()
+        if service_lower in ['aws', 'azure', 'gcp']:
             categories.add('Cloud')
-        elif service.lower() in ['kubernetes', 'docker']:
+        elif service_lower in ['kubernetes', 'docker']:
             categories.add('Infrastructure')
-        elif service.lower() in ['jenkins', 'gitlab', 'github']:
+        elif service_lower in ['jenkins', 'gitlab', 'github']:
             categories.add('CI/CD')
     
     # Add categories based on impact and content
-    impact = analysis.get('impact_level', '').upper()
+    impact = str(analysis.get('impact_level', '')).upper()
     if impact == 'HIGH':
         categories.add('Breaking Change')
     
     # Look for security-related content
-    content_lower = content.lower()
     if any(word in content_lower for word in ['security', 'vulnerability', 'cve']):
         categories.add('Security')
     
     # Look for new features
-    if any(change.lower().startswith(('add', 'new', 'introduce')) 
+    if any(str(change).lower().startswith(('add', 'new', 'introduce')) 
            for change in analysis.get('key_changes', [])):
         categories.add('New Feature')
     
@@ -139,7 +155,7 @@ def _extract_key_changes(content: str) -> List[str]:
             'added', 'removed', 'updated', 'changed', 'fixed', 'improved',
             'deprecated', 'introduced'
         ]):
-            changes.append(sentence.strip() + '.')
+            changes.append(str(sentence).strip() + '.')
     
     return changes[:5]  # Limit to top 5 changes
 
@@ -154,7 +170,7 @@ def _extract_action_items(content: str) -> List[str]:
             'required', 'must', 'should', 'need to', 'recommended',
             'please update', 'ensure', 'upgrade to'
         ]):
-            actions.append(sentence.strip() + '.')
+            actions.append(str(sentence).strip() + '.')
     
     return actions
 

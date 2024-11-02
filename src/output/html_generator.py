@@ -7,15 +7,6 @@ from src.utils.icon_mapping import ICON_MAPPING
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='newsletter_template.html', output_dir='dist'):
     """
     Generate HTML newsletter from analyzed entries.
-    
-    Args:
-        entries: List of analyzed entries
-        week_range: Tuple of (start_date, end_date)
-        executive_summary: Executive summary text
-        action_items: List of action items
-        additional_resources: List of additional resources
-        template_path: Path to the HTML template
-        output_dir: Output directory for the generated files
     """
     try:
         # Create necessary directories
@@ -45,8 +36,6 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
             icon_filename = ICON_MAPPING.get(platform_name, 'question.svg')
             icon_path = f"assets/icons/{icon_filename}"
             
-            logging.debug(f"Mapping provider '{platform_name}' to icon '{icon_path}'")
-            
             if platform_name not in platforms:
                 platforms[platform_name] = {
                     "name": platform_name.title(),
@@ -55,9 +44,9 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                 }
             
             # Process entry analysis
-            analysis = entry['analysis']
+            analysis = entry.get('analysis', {})
             impact_level = analysis.get('impact_level', 'LOW').upper()
-            categories = _determine_categories(analysis)
+            categories = analysis.get('categories', ['General'])
             
             # Update statistics
             if 'Breaking Change' in categories:
@@ -69,16 +58,16 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
             
             # Create processed entry
             processed_entry = {
-                "title": entry.get('title', 'No Title'),
-                "url": entry.get('link', '#'),
-                "date": entry.get('published', ''),
-                "summary": analysis.get('summary', "No summary available."),
+                "title": str(entry.get('title', 'No Title')),
+                "url": str(entry.get('link', '#')),
+                "date": str(entry.get('published', '')),
+                "summary": str(analysis.get('summary', "No summary available.")),
                 "impact": impact_level,
                 "impact_class": f"impact-{impact_level.lower()}",
                 "impact_badge_class": _get_impact_badge_class(impact_level),
                 "categories": categories,
-                "key_changes": analysis.get('key_changes', []),
-                "action_items": analysis.get('action_items', [])
+                "key_changes": [str(change) for change in analysis.get('key_changes', [])],
+                "action_items": [str(item) for item in analysis.get('action_items', [])]
             }
             
             platforms[platform_name]["entries"].append(processed_entry)
@@ -87,6 +76,10 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         if 'unknown' in platforms:
             logging.warning("Some entries have an unknown provider. These entries will be excluded.")
             del platforms['unknown']
+
+        # Generate executive summary if not provided
+        if not executive_summary:
+            executive_summary = _generate_executive_summary(stats)
 
         # Setup Jinja2 environment
         env = Environment(loader=FileSystemLoader(searchpath='./'))
@@ -118,43 +111,6 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         logging.error(f"Error generating HTML newsletter: {e}")
         raise
 
-def _determine_categories(analysis):
-    """
-    Determine categories based on analysis content.
-    """
-    categories = set()
-    
-    # Add categories based on affected services
-    if 'affected_services' in analysis:
-        for service in analysis['affected_services']:
-            if service.lower() in ['aws', 'azure', 'gcp']:
-                categories.add('Cloud')
-            elif service.lower() in ['kubernetes', 'docker']:
-                categories.add('Infrastructure')
-            elif service.lower() in ['jenkins', 'gitlab', 'github']:
-                categories.add('CI/CD')
-    
-    # Add categories based on impact and content
-    impact = analysis.get('impact_level', '').upper()
-    if impact == 'HIGH':
-        categories.add('Breaking Change')
-    
-    # Look for security-related content
-    summary = analysis.get('summary', '').lower()
-    if any(word in summary for word in ['security', 'vulnerability', 'cve']):
-        categories.add('Security')
-    
-    # Look for new features
-    if any(change.lower().startswith(('add', 'new', 'introduce')) 
-           for change in analysis.get('key_changes', [])):
-        categories.add('New Feature')
-    
-    # Ensure at least one category
-    if not categories:
-        categories.add('General')
-    
-    return sorted(list(categories))
-
 def _get_impact_badge_class(impact):
     """
     Get the CSS class for impact badge.
@@ -164,3 +120,24 @@ def _get_impact_badge_class(impact):
         'MEDIUM': 'bg-yellow-500',
         'LOW': 'bg-green-500'
     }.get(impact, 'bg-blue-500')
+
+def _generate_executive_summary(stats):
+    """
+    Generate an executive summary based on statistics.
+    """
+    summary_parts = []
+    
+    # Overview
+    summary_parts.append(f"This week's update includes {stats['total_updates_count']} changes across various DevOps tools and platforms.")
+    
+    # Highlight significant changes
+    if stats['breaking_changes_count'] > 0:
+        summary_parts.append(f"There are {stats['breaking_changes_count']} breaking changes that require immediate attention.")
+    
+    if stats['security_updates_count'] > 0:
+        summary_parts.append(f"There are {stats['security_updates_count']} security-related updates.")
+    
+    if stats['new_features_count'] > 0:
+        summary_parts.append(f"There are {stats['new_features_count']} new features or enhancements.")
+    
+    return ' '.join(summary_parts) if summary_parts else "No significant updates to report this week."
