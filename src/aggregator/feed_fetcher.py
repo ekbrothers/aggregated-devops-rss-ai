@@ -1,34 +1,119 @@
-# src/aggregator/feed_fetcher.py
 import feedparser
+import logging
 from datetime import datetime
 import pytz
-import logging
+from typing import List, Dict, Any, Tuple
+from bs4 import BeautifulSoup
+import re
 
-def fetch_rss_entries(feed_url, current_week_range):
-    entries = []
-    feed = feedparser.parse(feed_url)
-    for entry in feed.entries:
-        entry_date = None
-        if hasattr(entry, 'published_parsed') and entry.published_parsed:
-            entry_date = datetime(*entry.published_parsed[:6], tzinfo=pytz.UTC)
-        elif hasattr(entry, 'updated_parsed') and entry.updated_parsed:
-            entry_date = datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
+class FeedFetcher:
+    def __init__(self):
+        self.cache = {}
+
+    def fetch(self, url: str) -> List[Dict[str, Any]]:
+        """
+        Fetch and parse RSS/Atom feed from the given URL.
+        
+        Args:
+            url: The URL of the feed to fetch
+            
+        Returns:
+            List of parsed entries
+        """
+        try:
+            logging.debug(f"Fetching feed from {url}")
+            feed = feedparser.parse(url)
+            
+            if feed.get('status', 200) >= 400:
+                logging.error(f"Failed to fetch feed from {url} - Status: {feed.get('status')}")
+                return []
+            
+            entries = []
+            for entry in feed.entries:
+                try:
+                    # Extract content
+                    content = self._extract_content(entry)
+                    
+                    # Parse and standardize date
+                    published = self._parse_date(entry)
+                    
+                    # Create standardized entry
+                    processed_entry = {
+                        'title': entry.get('title', ''),
+                        'link': entry.get('link', ''),
+                        'published': published,
+                        'content': content
+                    }
+                    
+                    entries.append(processed_entry)
+                    
+                except Exception as e:
+                    logging.error(f"Error processing entry from {url}: {e}")
+                    continue
+            
+            return entries
+            
+        except Exception as e:
+            logging.error(f"Error fetching feed from {url}: {e}")
+            return []
+
+    def _extract_content(self, entry: Dict) -> str:
+        """
+        Extract content from a feed entry, handling different content formats.
+        """
+        # Try different content fields
+        if 'content' in entry:
+            if isinstance(entry.content, list):
+                content = entry.content[0].value
+            else:
+                content = entry.content
+        elif 'summary' in entry:
+            content = entry.summary
+        elif 'description' in entry:
+            content = entry.description
         else:
-            logging.warning(f"Entry missing both 'published_parsed' and 'updated_parsed' in feed: {feed_url}")
-            continue  # Skip if both dates are missing
+            content = ''
 
-        if current_week_range[0] <= entry_date < current_week_range[1]:
-            entry_data = {
-                'title': entry.get('title', 'No Title'),
-                'link': entry.get('link', '#'),
-                'published_parsed': entry_date,
-                'provider_name': extract_provider_name(feed_url)
-            }
-            entries.append(entry_data)
-            logging.info(f"Added RSS entry: {entry_data['title']} from {feed_url}")
-    return entries
+        # Clean HTML if present
+        if content:
+            soup = BeautifulSoup(content, 'html.parser')
+            content = soup.get_text(separator=' ', strip=True)
 
-def extract_provider_name(feed_url):
-    # Implement logic to extract provider name from feed URL
-    # This is a placeholder implementation
-    return feed_url.split('//')[-1].split('/')[0].replace('www.', '').capitalize()
+        return content
+
+    def _parse_date(self, entry: Dict) -> str:
+        """
+        Parse and standardize the publication date from an entry.
+        """
+        date_fields = ['published', 'updated', 'created']
+        
+        for field in date_fields:
+            if hasattr(entry, field):
+                try:
+                    # Parse the date string to a datetime object
+                    if field + '_parsed' in entry:
+                        dt = datetime(*entry[field + '_parsed'][:6])
+                    else:
+                        # Try parsing the date string directly
+                        dt = datetime.strptime(getattr(entry, field), '%Y-%m-%dT%H:%M:%SZ')
+                    
+                    # Ensure timezone awareness
+                    if dt.tzinfo is None:
+                        dt = pytz.UTC.localize(dt)
+                    
+                    # Return ISO format string
+                    return dt.isoformat()
+                except Exception as e:
+                    logging.debug(f"Failed to parse date from {field}: {e}")
+                    continue
+        
+        # If no valid date found, use current time
+        return datetime.now(pytz.UTC).isoformat()
+
+def fetch_rss_entries(feed_url: str, week_range: Tuple[datetime, datetime]) -> List[Dict[str, Any]]:
+    """
+    Fetch entries from an RSS feed within the specified date range.
+    Maintained for backward compatibility.
+    """
+    fetcher = FeedFetcher()
+    return fetcher.fetch(feed_url)

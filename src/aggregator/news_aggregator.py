@@ -1,98 +1,111 @@
+from datetime import datetime, timedelta
+import pytz
 import logging
-from datetime import datetime, timedelta, timezone
-from typing import List, Dict, Any
-from .feed_fetcher import FeedFetcher
-from .manual_fetcher import ManualFetcher
+from typing import List, Dict, Any, Tuple
+from .feed_fetcher import FeedFetcher, fetch_rss_entries
+from .manual_fetcher import fetch_manual_entries
 
 class NewsAggregator:
     def __init__(self, config: Dict[str, Any]):
         self.config = config
         self.feed_fetcher = FeedFetcher()
-        self.manual_fetcher = ManualFetcher()
-        self.current_week_range = self._calculate_date_range()
+        self.current_week_range = self._get_week_range()
+        self.entries = []
+
+    def _get_week_range(self) -> Tuple[datetime, datetime]:
+        """
+        Get the date range for fetching updates.
+        Default to 2 weeks of updates.
+        """
+        today = datetime.now(pytz.UTC)
+        days_since_friday = (today.weekday() - 4) % 7
+        last_friday = today - timedelta(days=days_since_friday + 7)  # Go back an extra week
+        last_friday = last_friday.replace(hour=0, minute=0, second=0, microsecond=0)
+        next_friday = last_friday + timedelta(days=14)  # Two weeks range
+        logging.info(f"Current week range: {last_friday} to {next_friday}")
+        return last_friday, next_friday
 
     def aggregate(self) -> List[Dict[str, Any]]:
-        """Aggregate news from all configured sources."""
+        """
+        Aggregate news from all configured sources.
+        """
         entries = []
+
+        # Fetch RSS feeds
+        for feed_url, feed_config in self.config.get('rss_feeds', {}).items():
+            try:
+                feed_entries = self.feed_fetcher.fetch(feed_url)
+                for entry in feed_entries:
+                    # Add source metadata
+                    entry['provider_name'] = feed_config.get('provider_name', '')
+                    entry['importance_keywords'] = feed_config.get('importance_keywords', [])
+                    entry['source_type'] = self._determine_source_type(feed_config)
+                    entries.append(entry)
+            except Exception as e:
+                logging.error(f"Error fetching RSS feed {feed_url}: {e}")
+
+        # Fetch manual sources
+        for source in self.config.get('manual_sources', []):
+            try:
+                manual_entries = fetch_manual_entries(source, self.current_week_range)
+                for entry in manual_entries:
+                    # Add source metadata
+                    entry['provider_name'] = source.get('provider_name', '')
+                    entry['source_type'] = self._determine_source_type(source)
+                    entries.append(entry)
+            except Exception as e:
+                logging.error(f"Error fetching manual source {source.get('url', '')}: {e}")
+
+        # Filter entries by date
+        filtered_entries = self._filter_entries_by_date(entries)
         
-        # Process all source categories
-        for category, sources in self.config['sources'].items():
-            for source in sources:
-                try:
-                    source_entries = self._fetch_source(source)
-                    for entry in source_entries:
-                        entry['source_type'] = category  # Add source category
-                        entry['source_metadata'] = {
-                            'type': source.get('type', ''),
-                            'status_url': source.get('status_url', ''),
-                            'name': source.get('name', '')
-                        }
-                        entries.append(entry)
-                except Exception as e:
-                    logging.error(f"Error fetching from {source.get('name', 'unknown')}: {e}")
-
         # Sort entries by date
-        entries.sort(key=lambda x: x.get('published', ''), reverse=True)
-        return entries
+        filtered_entries.sort(
+            key=lambda x: datetime.fromisoformat(x.get('published', '2000-01-01')),
+            reverse=True
+        )
 
-    def _fetch_source(self, source: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Fetch entries from a single source."""
-        url = source.get('url', '')
-        if not url:
-            return []
-
-        # Handle manual sources
-        if source.get('manual', False):
-            entries = self.manual_fetcher.fetch(url)
-        else:
-            entries = self.feed_fetcher.fetch(url)
-
-        # Filter entries by date and keywords
-        filtered_entries = []
-        for entry in entries:
-            # Add source information
-            entry['provider_name'] = source.get('provider_name', '')
-            entry['source_name'] = source.get('name', '')
-
-            # Check if entry is within date range
-            pub_date = self._parse_date(entry.get('published', ''))
-            if not pub_date or not self._is_within_date_range(pub_date):
-                continue
-
-            # Apply keyword filtering if specified
-            if 'filter_keywords' in source:
-                if not self._matches_keywords(entry, source['filter_keywords']):
-                    continue
-
-            filtered_entries.append(entry)
-
+        logging.info(f"Total entries fetched: {len(filtered_entries)}")
         return filtered_entries
 
-    def _calculate_date_range(self) -> tuple:
-        """Calculate the date range based on config settings."""
-        weeks = self.config.get('settings', {}).get('weeks_to_fetch', 1)
-        end_date = datetime.now(timezone.utc).replace(
-            hour=0, minute=0, second=0, microsecond=0
-        ) + timedelta(days=7)  # End date is next week
-        start_date = end_date - timedelta(weeks=weeks)
-        return (start_date, end_date)
+    def _determine_source_type(self, source_config: Dict[str, Any]) -> str:
+        """
+        Determine the type of source based on provider name and URL.
+        """
+        provider = source_config.get('provider_name', '').lower()
+        
+        # Terraform providers and tools
+        if provider == 'terraform':
+            if 'provider' in str(source_config.get('url', '')):
+                return 'terraform_providers'
+            return 'devops_tools'
+        
+        # VCS platforms
+        if provider in ['github', 'gitlab', 'azuredevops']:
+            return 'vcs_platforms'
+        
+        # AI tools
+        if provider in ['openai', 'anthropic']:
+            return 'ai_tools'
+        
+        # Cloud providers
+        if provider in ['googlecloud', 'aws', 'azure']:
+            return 'cloud_providers'
+        
+        # Default to devops_tools
+        return 'devops_tools'
 
-    def _is_within_date_range(self, date: datetime) -> bool:
-        """Check if a date falls within the configured range."""
-        return self.current_week_range[0] <= date <= self.current_week_range[1]
-
-    def _parse_date(self, date_str: str) -> datetime:
-        """Parse date string to datetime object."""
-        try:
-            return datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        except (ValueError, AttributeError):
-            logging.error(f"Failed to parse date: {date_str}")
-            return None
-
-    def _matches_keywords(self, entry: Dict[str, Any], keywords: List[str]) -> bool:
-        """Check if entry matches any of the filter keywords."""
-        content = (
-            str(entry.get('title', '')).lower() + 
-            str(entry.get('content', '')).lower()
-        )
-        return any(keyword.lower() in content for keyword in keywords)
+    def _filter_entries_by_date(self, entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Filter entries to only include those within the current date range.
+        """
+        filtered = []
+        for entry in entries:
+            try:
+                pub_date = datetime.fromisoformat(entry.get('published', '2000-01-01'))
+                if self.current_week_range[0] <= pub_date <= self.current_week_range[1]:
+                    filtered.append(entry)
+            except (ValueError, TypeError) as e:
+                logging.error(f"Error parsing date for entry: {e}")
+                continue
+        return filtered
