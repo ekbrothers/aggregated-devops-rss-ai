@@ -1,79 +1,135 @@
 <!-- Updates Grid -->
-<section id="updates-container" class="mb-8">
+<section id="updates-container" class="max-w-7xl mx-auto">
+    <!-- Table of Contents -->
+    <nav class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Quick Navigation</h2>
+        <ul class="space-y-2">
+            {% for source, updates in updates_by_source.items() %}
+            <li>
+                <a href="#{{source|lower|replace('.', '-')}}" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="{{updates.icon}}" alt="" class="w-6 h-6 mr-2">
+                    <span>{{updates.name}} Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">({{updates.entries|length}} updates)</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </nav>
+
+    <!-- Updates by Source -->
     {% for source, updates in updates_by_source.items() %}
-    <div class="mb-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+    <section id="{{source|lower|replace('.', '-')}}" class="mb-12">
         <!-- Source Header -->
-        <div class="flex items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-12 h-12 mr-4">
-            <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{updates.name}} Updates</h3>
-        </div>
-        
-        <!-- Updates List -->
-        <div class="space-y-6">
-            {% for entry in updates.entries %}
-            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md overflow-hidden border-l-4 {{entry.impact_class}}" 
-                 data-categories="{{entry.categories|join(' ')}}" 
-                 data-impact="{{entry.impact}}"
-                 data-date="{{entry.date}}">
-                <div class="p-6">
-                    <!-- Header -->
-                    <div class="flex justify-between items-start gap-4">
-                        <div class="flex-grow">
-                            <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight mb-3">{{entry.title}}</h4>
-                            <div class="flex flex-wrap gap-2">
-                                {% for category in entry.categories %}
-                                <span class="px-3 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">{{category}}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <span class="text-sm font-bold text-white px-3 py-1.5 rounded-full whitespace-nowrap {{entry.impact_badge_class}}">
-                            {{entry.impact|upper}}
-                        </span>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="mt-6">
-                        <div class="text-gray-700 dark:text-gray-300 prose dark:prose-invert max-w-none leading-relaxed">
-                            {{entry.content}}
-                        </div>
-                        
-                        {% if entry.key_changes %}
-                        <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                            <h5 class="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                                Key Changes
-                            </h5>
-                            <ul class="space-y-2 text-gray-700 dark:text-gray-300">
-                                {% for change in entry.key_changes %}
-                                <li class="flex items-start">
-                                    <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                                    <span class="flex-grow">{{change}}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Footer -->
-                    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                        <a href="{{entry.url}}" target="_blank" rel="noopener noreferrer" 
-                           class="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
-                            Read more
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
-                            </svg>
-                        </a>
-                        <time datetime="{{entry.published}}" class="text-sm text-gray-600 dark:text-gray-400 font-medium">
-                            {{entry.published}}
-                        </time>
-                    </div>
+        <div class="bg-gradient-to-r from-gray-100 to-white dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center">
+                <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-16 h-16 mr-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{updates.name}}</h2>
+                    <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            {% for entry in updates.entries %}
+            <article class="p-6 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full {{entry.impact_badge_class}}">
+                                {{entry.impact|upper}} IMPACT
+                            </span>
+                            <time datetime="{{entry.published}}" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                {{entry.published}}
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                            {{entry.title}}
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            {% for category in entry.categories %}
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                {{category}}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            {{entry.content}}
+                        </div>
+                    </div>
+
+                    <!-- Key Changes -->
+                    {% if entry.key_changes %}
+                    <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
+                        <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+                            Key Changes & Highlights
+                        </h4>
+                        <ul class="space-y-3">
+                            {% for change in entry.key_changes %}
+                            <li class="flex items-start gap-3">
+                                <span class="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-blue-500 mt-2"></span>
+                                <span class="text-gray-700 dark:text-gray-300">{{change}}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="{{entry.url}}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
             {% endfor %}
         </div>
-    </div>
+    </section>
     {% endfor %}
 </section>
+
+<!-- Back to Top Button -->
+<button id="back-to-top" 
+        class="fixed bottom-8 right-8 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors hidden">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+    </svg>
+</button>
+
+<script>
+// Back to Top Button
+const backToTopButton = document.getElementById('back-to-top');
+
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove('hidden');
+    } else {
+        backToTopButton.classList.add('hidden');
+    }
+});
+
+backToTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+</script>
