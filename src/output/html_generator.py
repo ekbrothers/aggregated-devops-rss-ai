@@ -89,9 +89,10 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
             logging.warning("Some entries have an unknown provider. These entries will be excluded.")
             del platforms['unknown']
 
-        # Setup Jinja2 environment
-        env = Environment(loader=FileSystemLoader('.'))
-        template = env.get_template(template_path)
+        # Setup Jinja2 environment with correct template directory
+        template_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Get src directory
+        env = Environment(loader=FileSystemLoader(os.path.join(template_dir, 'templates')))
+        template = env.get_template('base.html')  # Now we can use relative path
         
         # Prepare template data
         template_data = {
