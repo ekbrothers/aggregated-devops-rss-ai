@@ -2,8 +2,6 @@ import feedparser
 from datetime import datetime
 import pytz
 import logging
-from bs4 import BeautifulSoup
-import re
 
 def fetch_rss_entries(feed_url, current_week_range):
     """
@@ -62,37 +60,19 @@ def _parse_entry_date(entry):
 
 def _extract_entry_content(entry):
     """
-    Extract and clean content from an entry.
+    Extract content from an entry while preserving original format.
     """
-    content = ''
-    
-    # Try different content fields
+    # Try different content fields while preserving original format
     if hasattr(entry, 'content'):
         if isinstance(entry.content, list):
-            content = entry.content[0].value
-        else:
-            content = entry.content
+            return entry.content[0].value
+        return entry.content
     elif hasattr(entry, 'summary'):
-        content = entry.summary
+        return entry.summary
     elif hasattr(entry, 'description'):
-        content = entry.description
+        return entry.description
     
-    # Clean HTML if present
-    if content:
-        # Parse HTML
-        soup = BeautifulSoup(content, 'html.parser')
-        
-        # Remove script and style elements
-        for element in soup(['script', 'style']):
-            element.decompose()
-        
-        # Get text content
-        content = soup.get_text(separator=' ', strip=True)
-        
-        # Clean up whitespace
-        content = re.sub(r'\s+', ' ', content).strip()
-    
-    return content
+    return ''
 
 def extract_provider_name(feed_url):
     """

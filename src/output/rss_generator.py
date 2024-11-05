@@ -18,7 +18,7 @@ def generate_rss(entries, week_range, output_dir='dist'):
             rss.add_item(
                 title=entry.get('title', 'No Title'),
                 link=entry.get('link', '#'),
-                description=entry['analysis'].get('summary', 'No summary available.'),
+                description=entry.get('content', 'No content available.'),
                 pubdate=entry.get('published_parsed')
             )
         

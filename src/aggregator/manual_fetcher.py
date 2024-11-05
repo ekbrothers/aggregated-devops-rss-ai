@@ -33,7 +33,8 @@ def fetch_manual_entries(source, current_week_range):
             
         # Process each content element
         for element in content_elements:
-            content = element.get_text(separator=' ', strip=True)
+            # Preserve HTML content
+            content = str(element)
             if not content:
                 continue
                 
@@ -55,7 +56,7 @@ def fetch_manual_entries(source, current_week_range):
                 entry = {
                     'title': title,
                     'link': source['url'],
-                    'content': content[:1000] + '...' if len(content) > 1000 else content,  # Limit content length
+                    'content': content,  # Keep full HTML content
                     'published': entry_date.isoformat(),
                     'provider_name': source.get('provider_name', 'Unknown Platform')
                 }
