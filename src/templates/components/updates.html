@@ -1,54 +1,79 @@
 <!-- Updates Grid -->
 <section id="updates-container" class="mb-8">
     {% for source, updates in updates_by_source.items() %}
-    <div class="mb-8">
-        <div class="flex items-center mb-4">
-            <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-10 h-10 mr-3">
-            <h3 class="text-2xl font-semibold text-gray-800">{{updates.name}} Updates</h3>
+    <div class="mb-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+        <!-- Source Header -->
+        <div class="flex items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+            <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-12 h-12 mr-4">
+            <h3 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{updates.name}} Updates</h3>
         </div>
         
-        {% for entry in updates.entries %}
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 mb-4 {{entry.impact_class}}" 
-             data-categories="{{entry.categories|join(' ')}}" 
-             data-impact="{{entry.impact}}"
-             data-date="{{entry.date}}">
-            <div class="p-6">
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h4 class="text-xl font-semibold text-gray-900">{{entry.title}}</h4>
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            {% for category in entry.categories %}
-                            <span class="px-2 py-1 text-xs font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded">{{category}}</span>
-                            {% endfor %}
+        <!-- Updates List -->
+        <div class="space-y-6">
+            {% for entry in updates.entries %}
+            <div class="bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md overflow-hidden border-l-4 {{entry.impact_class}}" 
+                 data-categories="{{entry.categories|join(' ')}}" 
+                 data-impact="{{entry.impact}}"
+                 data-date="{{entry.date}}">
+                <div class="p-6">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start gap-4">
+                        <div class="flex-grow">
+                            <h4 class="text-xl font-bold text-gray-900 dark:text-gray-100 leading-tight mb-3">{{entry.title}}</h4>
+                            <div class="flex flex-wrap gap-2">
+                                {% for category in entry.categories %}
+                                <span class="px-3 py-1 text-xs font-semibold bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">{{category}}</span>
+                                {% endfor %}
+                            </div>
                         </div>
+                        <span class="text-sm font-bold text-white px-3 py-1.5 rounded-full whitespace-nowrap {{entry.impact_badge_class}}">
+                            {{entry.impact|upper}}
+                        </span>
                     </div>
-                    <span class="text-sm font-medium text-white px-2 py-1 rounded {{entry.impact_badge_class}}">
-                        {{entry.impact|upper}}
-                    </span>
-                </div>
-                
-                <div class="mt-4">
-                    <div class="text-gray-700 prose dark:prose-invert">{{entry.content}}</div>
                     
-                    {% if entry.key_changes %}
-                    <div class="mt-4">
-                        <h5 class="font-semibold text-gray-800 mb-2">Key Changes:</h5>
-                        <ul class="list-disc list-inside text-gray-700">
-                            {% for change in entry.key_changes %}
-                            <li>{{change}}</li>
-                            {% endfor %}
-                        </ul>
+                    <!-- Content -->
+                    <div class="mt-6">
+                        <div class="text-gray-700 dark:text-gray-300 prose dark:prose-invert max-w-none leading-relaxed">
+                            {{entry.content}}
+                        </div>
+                        
+                        {% if entry.key_changes %}
+                        <div class="mt-6 bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <h5 class="font-bold text-gray-900 dark:text-gray-100 mb-3 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                Key Changes
+                            </h5>
+                            <ul class="space-y-2 text-gray-700 dark:text-gray-300">
+                                {% for change in entry.key_changes %}
+                                <li class="flex items-start">
+                                    <span class="inline-block w-2 h-2 bg-blue-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                                    <span class="flex-grow">{{change}}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                     </div>
-                    {% endif %}
-                </div>
-                
-                <div class="mt-4 flex items-center justify-between">
-                    <a href="{{entry.url}}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800">Read more →</a>
-                    <span class="text-sm text-gray-600">{{entry.published}}</span>
+                    
+                    <!-- Footer -->
+                    <div class="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <a href="{{entry.url}}" target="_blank" rel="noopener noreferrer" 
+                           class="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
+                            Read more
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </a>
+                        <time datetime="{{entry.published}}" class="text-sm text-gray-600 dark:text-gray-400 font-medium">
+                            {{entry.published}}
+                        </time>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endfor %}
 </section>
