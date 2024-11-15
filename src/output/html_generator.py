@@ -57,42 +57,40 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
             if content_type == 'markdown':
                 content = md.convert(content)
             
+            # Get Claude's analysis
+            analysis = entry.get('analysis', {})
+            
             processed_entry = {
                 "title": str(entry.get('title', 'No Title')),
                 "url": str(entry.get('link', '#')),
                 "published": str(entry.get('published', '')),
                 "content": content,
                 "content_type": content_type,
-                "impact": "LOW",
-                "impact_class": "impact-low",
-                "impact_badge_class": "bg-green-500",
-                "categories": ["General"],
-                "key_changes": []
+                "impact": analysis.get('impact_level', 'LOW').upper(),
+                "impact_badge_class": {
+                    'HIGH': 'bg-red-500',
+                    'MEDIUM': 'bg-yellow-500',
+                    'LOW': 'bg-green-500'
+                }.get(analysis.get('impact_level', 'LOW').upper(), 'bg-green-500'),
+                "categories": analysis.get('categories', ["General"]),
+                "key_changes": analysis.get('key_changes', []),
+                "breaking_changes": analysis.get('breaking_changes', []),
+                "security_updates": analysis.get('security_updates', []),
+                "new_features": analysis.get('new_features', []),
+                "deprecations": analysis.get('deprecations', []),
+                "action_items": analysis.get('action_items', []),
+                "affected_services": analysis.get('affected_services', []),
+                "platform_status": analysis.get('platform_status', 'Unknown'),
+                "summary": analysis.get('summary', '')
             }
             
-            # Update statistics based on content
-            content_lower = processed_entry['content'].lower()
-            if 'breaking' in content_lower or 'critical' in content_lower:
+            # Update statistics based on Claude's analysis
+            if processed_entry['breaking_changes']:
                 stats['breaking_changes_count'] += 1
-                processed_entry['impact'] = 'HIGH'
-                processed_entry['impact_class'] = 'impact-high'
-                processed_entry['impact_badge_class'] = 'bg-red-500'
-                processed_entry['categories'].append('Breaking Change')
-            
-            if 'security' in content_lower or 'vulnerability' in content_lower:
+            if processed_entry['security_updates']:
                 stats['security_updates_count'] += 1
-                processed_entry['categories'].append('Security')
-            
-            if 'new' in content_lower or 'feature' in content_lower:
+            if processed_entry['new_features']:
                 stats['new_features_count'] += 1
-                processed_entry['categories'].append('New Feature')
-            
-            # Extract key changes
-            key_changes = []
-            for sentence in content_lower.split('. '):
-                if any(keyword in sentence for keyword in ['add', 'new', 'fix', 'update', 'improve', 'change']):
-                    key_changes.append(sentence.strip() + '.')
-            processed_entry['key_changes'] = key_changes[:5]  # Limit to top 5 changes
             
             # Add to platforms
             platforms[platform_name]["entries"].append(processed_entry)
