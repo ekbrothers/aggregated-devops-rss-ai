@@ -30,6 +30,11 @@ class NewsAggregator:
         
         # Process all source categories
         for category, source_list in sources.items():
+            # Skip if source_list is None or empty
+            if not source_list:
+                logging.debug(f"Skipping empty category: {category}")
+                continue
+                
             for source in source_list:
                 try:
                     # Skip if no URL provided
