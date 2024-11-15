@@ -36,20 +36,29 @@ class NewsAggregator:
                     if not source.get('url'):
                         continue
                         
+                    # Set default content type if not specified
+                    if 'content_type' not in source:
+                        # GitHub-related sources typically provide markdown
+                        if 'github.com' in source.get('url', ''):
+                            source['content_type'] = 'markdown'
+                        else:
+                            source['content_type'] = 'html'
+                    
                     # Determine if manual or RSS feed
                     if source.get('manual', False):
                         source_entries = fetch_manual_entries(source, self.current_week_range)
                     else:
-                        source_entries = fetch_rss_entries(source['url'], self.current_week_range)
+                        source_entries = fetch_rss_entries(source['url'], self.current_week_range, source)
                     
                     # Process entries
                     for entry in source_entries:
                         # Add source information
                         entry['provider_name'] = source.get('provider_name', '')
                         entry['source_type'] = category
+                        entry['content_type'] = source.get('content_type', 'html')
                         
                         entries.append(entry)
-                        logging.debug(f"Processed entry from {source.get('name', 'Unknown')} ({source.get('url')})")
+                        logging.debug(f"Processed {entry['content_type']} entry from {source.get('name', 'Unknown')} ({source.get('url')})")
                         
                 except Exception as e:
                     logging.error(f"Error processing source {source.get('name', 'Unknown')} ({source.get('url')}): {e}")

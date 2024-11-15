@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 import logging
 
-def fetch_rss_entries(feed_url, current_week_range):
+def fetch_rss_entries(feed_url, current_week_range, source_config):
     """
     Fetch and parse RSS/Atom feed entries.
     """
@@ -24,8 +24,8 @@ def fetch_rss_entries(feed_url, current_week_range):
 
                 # Only process if within date range
                 if current_week_range[0] <= entry_date < current_week_range[1]:
-                    # Extract content
-                    content = _extract_entry_content(entry)
+                    # Extract content based on content type
+                    content = _extract_entry_content(entry, source_config.get('content_type', 'html'))
                     
                     # Create entry data
                     entry_data = {
@@ -33,6 +33,7 @@ def fetch_rss_entries(feed_url, current_week_range):
                         'link': entry.get('link', '#'),
                         'published': entry_date.isoformat(),
                         'content': content,
+                        'content_type': source_config.get('content_type', 'html'),
                         'provider_name': extract_provider_name(feed_url)
                     }
                     
@@ -58,21 +59,39 @@ def _parse_entry_date(entry):
         return datetime(*entry.updated_parsed[:6], tzinfo=pytz.UTC)
     return None
 
-def _extract_entry_content(entry):
+def _extract_entry_content(entry, content_type):
     """
-    Extract content from an entry while preserving original format.
+    Extract content from an entry while preserving specified format.
     """
-    # Try different content fields while preserving original format
+    content = ''
+    
+    # Try different content fields
     if hasattr(entry, 'content'):
         if isinstance(entry.content, list):
-            return entry.content[0].value
-        return entry.content
+            content = entry.content[0].value
+        else:
+            content = entry.content
     elif hasattr(entry, 'summary'):
-        return entry.summary
+        content = entry.summary
     elif hasattr(entry, 'description'):
-        return entry.description
+        content = entry.description
     
-    return ''
+    # For markdown content, we want to preserve the original formatting
+    # GitHub and some other platforms provide content in markdown format
+    if content_type == 'markdown':
+        # If content is HTML but source is markdown (common with GitHub),
+        # we might need to add processing here to convert HTML back to markdown
+        # For now, we'll preserve the content as-is since GitHub's HTML
+        # is typically a good representation of the markdown
+        pass
+    elif content_type == 'plain':
+        # For plain text, strip HTML tags if present
+        from bs4 import BeautifulSoup
+        if content:
+            content = BeautifulSoup(content, 'html.parser').get_text()
+    # For HTML content_type, keep the HTML as-is
+    
+    return content
 
 def extract_provider_name(feed_url):
     """

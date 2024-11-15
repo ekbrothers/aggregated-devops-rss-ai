@@ -33,8 +33,7 @@ def fetch_manual_entries(source, current_week_range):
             
         # Process each content element
         for element in content_elements:
-            # Preserve HTML content
-            content = str(element)
+            content = _extract_content(element, source.get('content_type', 'html'))
             if not content:
                 continue
                 
@@ -56,7 +55,8 @@ def fetch_manual_entries(source, current_week_range):
                 entry = {
                     'title': title,
                     'link': source['url'],
-                    'content': content,  # Keep full HTML content
+                    'content': content,
+                    'content_type': source.get('content_type', 'html'),
                     'published': entry_date.isoformat(),
                     'provider_name': source.get('provider_name', 'Unknown Platform')
                 }
@@ -66,3 +66,26 @@ def fetch_manual_entries(source, current_week_range):
     except requests.RequestException as e:
         logging.error(f"Failed to fetch manual source: {source['url']} - {str(e)}")
     return entries
+
+def _extract_content(element, content_type):
+    """
+    Extract content while preserving the specified format.
+    """
+    if content_type == 'markdown':
+        # For markdown content, we need to preserve the original markdown
+        # Some sites might provide markdown in a data attribute
+        markdown_content = element.get('data-markdown') or element.get('data-content')
+        if markdown_content:
+            return markdown_content
+        
+        # If no markdown is directly available, preserve the HTML
+        # as it might be rendered markdown
+        return str(element)
+        
+    elif content_type == 'plain':
+        # For plain text, strip all HTML
+        return element.get_text(separator='\n\n', strip=True)
+        
+    else:  # html
+        # For HTML, preserve the full HTML content
+        return str(element)

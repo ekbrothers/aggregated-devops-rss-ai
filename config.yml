@@ -4,16 +4,19 @@ sources:
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom"
       provider_name: "github.com"
+      content_type: "markdown"
       
     - name: "AWS Provider"
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-aws/releases.atom"
       provider_name: "github.com"
+      content_type: "markdown"
       
     - name: "Google Cloud Provider"
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-google/releases.atom"
       provider_name: "github.com"
+      content_type: "markdown"
 
   vcs_platforms:
     - name: "GitHub"
@@ -21,12 +24,14 @@ sources:
       url: "https://github.blog/changelog/feed/"
       provider_name: "github.blog"
       status_url: "https://www.githubstatus.com/"
+      content_type: "html"
       
     - name: "GitLab"
       type: "vcs"
       url: "https://about.gitlab.com/releases/feed.xml"
       provider_name: "gitlab"
       status_url: "https://status.gitlab.com/"
+      content_type: "html"
       
     - name: "Azure DevOps"
       type: "vcs"
@@ -34,6 +39,7 @@ sources:
       provider_name: "azuredevops"
       status_url: "https://status.dev.azure.com/"
       manual: true
+      content_type: "html"
 
   ai_tools:
     - name: "OpenAI"
@@ -41,29 +47,34 @@ sources:
       url: "https://help.openai.com/en/articles/6825453-chatgpt-release-notes"
       provider_name: "openai"
       manual: true
+      content_type: "html"
       
     - name: "Anthropic"
       type: "ai"
       url: "https://www.anthropic.com/news"
       provider_name: "anthropic"
       manual: true
+      content_type: "html"
       
     - name: "GitHub Copilot"
       type: "ai"
       url: "https://github.blog/changelog/feed/"
       provider_name: "github.blog"
       filter_keywords: ["copilot"]
+      content_type: "html"
 
   devops_tools:
     - name: "HashiCorp Vault"
       type: "security"
       url: "https://github.com/hashicorp/vault/releases.atom"
       provider_name: "github.com"
+      content_type: "markdown"
       
     - name: "Terraform"
       type: "infrastructure"
       url: "https://github.com/hashicorp/terraform/releases.atom"
       provider_name: "github.com"
+      content_type: "markdown"
 
 settings:
   weeks_to_fetch: 2  # Number of weeks of updates to fetch
