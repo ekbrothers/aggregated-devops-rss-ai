@@ -34,7 +34,7 @@ def fetch_rss_entries(feed_url, current_week_range, source_config):
                         'published': entry_date.isoformat(),
                         'content': content,
                         'content_type': source_config.get('content_type', 'html'),
-                        'provider_name': extract_provider_name(feed_url)
+                        'provider_name': source_config.get('provider_name', extract_provider_name(feed_url))
                     }
                     
                     entries.append(entry_data)
@@ -95,28 +95,29 @@ def _extract_entry_content(entry, content_type):
 
 def extract_provider_name(feed_url):
     """
-    Extract provider name from feed URL.
+    Extract provider name from feed URL as fallback.
+    Only used if provider_name is not specified in source config.
     """
     # Extract domain from URL
     domain = feed_url.split('//')[-1].split('/')[0].lower()
     
     # Handle known providers
     if 'github' in domain:
-        if 'blog' in domain:
-            return 'github.blog'
-        return 'github.com'
+        return 'github'
     elif 'gitlab' in domain:
         return 'gitlab'
     elif 'azure' in domain or 'microsoft' in domain:
-        return 'azuredevops'
+        return 'azure'
     elif 'hashicorp' in domain:
-        return 'hashicorp'
+        return 'terraform'  # Default to terraform for HashiCorp
     elif 'google' in domain:
         return 'googlecloud'
     elif 'anthropic' in domain:
         return 'anthropic'
     elif 'openai' in domain:
         return 'openai'
+    elif 'aws' in domain or 'amazon' in domain:
+        return 'aws'
     
     # Remove www. and .com/.org/etc
     provider = domain.replace('www.', '').split('.')[0]

@@ -3,26 +3,26 @@ sources:
     - name: "Azure Provider"
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-azurerm/releases.atom"
-      provider_name: "github.com"
+      provider_name: "azure"
       content_type: "markdown"
       
     - name: "AWS Provider"
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-aws/releases.atom"
-      provider_name: "github.com"
+      provider_name: "aws"
       content_type: "markdown"
       
     - name: "Google Cloud Provider"
       type: "terraform_provider"
       url: "https://github.com/hashicorp/terraform-provider-google/releases.atom"
-      provider_name: "github.com"
+      provider_name: "googlecloud"
       content_type: "markdown"
 
   vcs_platforms:
     - name: "GitHub"
       type: "vcs"
       url: "https://github.blog/changelog/feed/"
-      provider_name: "github.blog"
+      provider_name: "github"
       status_url: "https://www.githubstatus.com/"
       content_type: "html"
       
@@ -59,7 +59,7 @@ sources:
     - name: "GitHub Copilot"
       type: "ai"
       url: "https://github.blog/changelog/feed/"
-      provider_name: "github.blog"
+      provider_name: "github_copilot"
       filter_keywords: ["copilot"]
       content_type: "html"
 
@@ -67,13 +67,13 @@ sources:
     - name: "HashiCorp Vault"
       type: "security"
       url: "https://github.com/hashicorp/vault/releases.atom"
-      provider_name: "github.com"
+      provider_name: "vault"
       content_type: "markdown"
       
     - name: "Terraform"
       type: "infrastructure"
       url: "https://github.com/hashicorp/terraform/releases.atom"
-      provider_name: "github.com"
+      provider_name: "terraform"
       content_type: "markdown"
 
 settings:
