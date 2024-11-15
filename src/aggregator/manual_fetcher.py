@@ -58,7 +58,8 @@ def fetch_manual_entries(source, current_week_range):
                     'content': content,
                     'content_type': source.get('content_type', 'html'),
                     'published': entry_date.isoformat(),
-                    'provider_name': source.get('provider_name', 'Unknown Platform')
+                    'provider_name': source.get('provider_name', 'Unknown Platform'),
+                    'source_name': source.get('name', 'Unknown Source')  # Add source name from config
                 }
                 entries.append(entry)
                 logging.info(f"Added manual entry: {entry['title']} from {source['url']}")

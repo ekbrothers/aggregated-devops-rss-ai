@@ -38,12 +38,13 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         
         for entry in entries:
             platform_name = entry.get('provider_name', 'unknown').lower()
+            source_name = entry.get('source_name', platform_name.title())
             icon_filename = ICON_MAPPING.get(platform_name, 'question.svg')
             icon_path = f"assets/icons/{icon_filename}"
             
             if platform_name not in platforms:
                 platforms[platform_name] = {
-                    "name": platform_name.title(),
+                    "name": source_name,  # Use source_name from config.yml
                     "icon": icon_path,
                     "entries": []
                 }

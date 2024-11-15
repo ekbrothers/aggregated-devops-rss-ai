@@ -34,7 +34,8 @@ def fetch_rss_entries(feed_url, current_week_range, source_config):
                         'published': entry_date.isoformat(),
                         'content': content,
                         'content_type': source_config.get('content_type', 'html'),
-                        'provider_name': source_config.get('provider_name', extract_provider_name(feed_url))
+                        'provider_name': source_config.get('provider_name', extract_provider_name(feed_url)),
+                        'source_name': source_config.get('name', 'Unknown Source')  # Add source name from config
                     }
                     
                     entries.append(entry_data)
