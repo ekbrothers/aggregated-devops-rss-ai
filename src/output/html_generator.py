@@ -3,6 +3,7 @@ import os
 import logging
 import shutil
 from datetime import datetime
+import markdown
 from src.utils.icon_mapping import ICON_MAPPING
 
 def generate_html(entries, week_range, executive_summary, action_items, additional_resources, template_path='src/templates/base.html', output_dir='dist'):
@@ -22,6 +23,9 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                 logging.debug(f"Copied {source_path} to {dest_path}")
             else:
                 logging.error(f"Icon file {source_path} does not exist.")
+        
+        # Initialize markdown converter with code highlighting
+        md = markdown.Markdown(extensions=['fenced_code', 'codehilite', 'tables'])
         
         # Process entries and organize by platform
         platforms = {}
@@ -45,11 +49,19 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
                 }
             
             # Process entry
+            content = str(entry.get('content', 'No content available.'))
+            content_type = entry.get('content_type', 'html')
+            
+            # Convert markdown to HTML if content is markdown
+            if content_type == 'markdown':
+                content = md.convert(content)
+            
             processed_entry = {
                 "title": str(entry.get('title', 'No Title')),
                 "url": str(entry.get('link', '#')),
                 "published": str(entry.get('published', '')),
-                "content": str(entry.get('content', 'No content available.')),
+                "content": content,
+                "content_type": content_type,
                 "impact": "LOW",
                 "impact_class": "impact-low",
                 "impact_badge_class": "bg-green-500",
@@ -92,6 +104,10 @@ def generate_html(entries, week_range, executive_summary, action_items, addition
         # Setup Jinja2 environment with correct template directory
         template_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Get src directory
         env = Environment(loader=FileSystemLoader(os.path.join(template_dir, 'templates')))
+        
+        # Add safe filter to allow HTML in content
+        env.filters['safe'] = lambda x: x
+        
         template = env.get_template('base.html')  # Now we can use relative path
         
         # Prepare template data

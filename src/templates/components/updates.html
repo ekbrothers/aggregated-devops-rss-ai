@@ -65,7 +65,11 @@
                     <!-- Summary -->
                     <div class="prose dark:prose-invert max-w-none">
                         <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
-                            {{entry.content}}
+                            {% if entry.content_type == 'markdown' %}
+                                {{entry.content|safe}}
+                            {% else %}
+                                {{entry.content}}
+                            {% endif %}
                         </div>
                     </div>
 
