@@ -2,7 +2,7 @@
 <section id="updates-container" class="max-w-7xl mx-auto">
     <!-- Table of Contents -->
     <nav class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Quick Navigation</h2>
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Quick Navigation</h2>
         <ul class="space-y-2">
             {% for source, updates in updates_by_source.items() %}
             <li>
@@ -26,7 +26,7 @@
                 <div class="flex items-center">
                     <img src="{{updates.icon}}" alt="{{updates.name}} logo" class="w-16 h-16 mr-6">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{updates.name}}</h2>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">{{updates.name}}</h2>
                         <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                                 {{entry.published}}
                             </time>
                         </div>
-                        <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
                             {{entry.title}}
                         </h3>
                         <div class="flex flex-wrap gap-2 mt-3">
@@ -108,7 +108,7 @@
                     <div class="space-y-4">
                         {% if entry.key_changes %}
                         <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-6">
-                            <h4 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
+                            <h4 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
                                 Key Changes & Highlights
                             </h4>
                             <ul class="space-y-3">
