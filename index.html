@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Weekly Update</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+    /* Custom styles for impact levels */
+    .impact-high { border-left-color: #ef4444; }
+    .impact-medium { border-left-color: #f59e0b; }
+    .impact-low { border-left-color: #10b981; }
+
+    /* Dark mode styles */
+    .dark body { background-color: #1a1a1a; color: #e5e5e5; }
+    .dark .bg-white { background-color: #2d2d2d; }
+    .dark .text-gray-900 { color: #e5e5e5; }
+    .dark .text-gray-800 { color: #d1d1d1; }
+    .dark .text-gray-700 { color: #bdbdbd; }
+    .dark .text-gray-600 { color: #a3a3a3; }
+    .dark .border-gray-200 { border-color: #404040; }
+    .dark .shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); }
+    .dark .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+
+    /* Custom hover styles */
+    .article-hover {
+        transition: background-color 0.2s;
+    }
+    
+    .article-hover:hover {
+        background-color: #f3f4f6;  /* Light mode hover color */
+    }
+    
+    .dark .article-hover:hover {
+        background-color: #374151 !important;  /* Dark mode hover color with !important to override any other hover styles */
+    }
+
+    /* Filter tags */
+    .filter-tag {
+        cursor: pointer;
+        transition: all 0.2s;
+        background-color: #4a5568;
+        color: #e2e8f0;
+    }
+    .dark .filter-tag {
+        background-color: #4a5568;
+        color: #e2e8f0;
+    }
+    .filter-tag:hover {
+        background-color: #2d3748;
+    }
+    .dark .filter-tag:hover {
+        background-color: #2d3748;
+    }
+    .filter-tag.active {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .dark .filter-tag.active {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    /* Timeline styles */
+    .timeline-view .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        border-left: 2px solid #4b5563;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-view .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -0.5rem;
+        top: 0.5rem;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: #4b5563;
+    }
+
+    /* Search highlight */
+    .highlight {
+        background-color: #fde68a;
+        color: #1a1a1a;
+    }
+
+    /* Dark mode input styles */
+    .dark input[type="text"] {
+        background-color: #4a5568;
+        color: #e2e8f0;
+        border-color: #4b5563;
+    }
+    .dark input[type="text"]::placeholder {
+        color: #9ca3af;
+    }
+    .dark input[type="text"]:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+
+    /* Filter section styles */
+    .dark .filter-section {
+        background-color: #374151;
+        border: 1px solid #4b5563;
+    }
+    .dark .filter-heading {
+        color: #e2e8f0;
+    }
+    .dark .filter-label {
+        color: #e2e8f0;
+    }
+
+    /* Markdown Content Styles */
+    .prose {
+        max-width: none;
+        color: #374151;
+    }
+    .dark .prose {
+        color: #e5e5e5;
+    }
+    .prose h1, .prose h2, .prose h3, .prose h4 {
+        color: #111827;
+        margin-top: 2em;
+        margin-bottom: 1em;
+    }
+    .dark .prose h1, .dark .prose h2, .dark .prose h3, .dark .prose h4 {
+        color: #f3f4f6;
+    }
+    .prose p {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    .prose a {
+        color: #2563eb;
+        text-decoration: underline;
+    }
+    .dark .prose a {
+        color: #60a5fa;
+    }
+    .prose ul {
+        list-style-type: disc;
+        padding-left: 1.625em;
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    .prose ol {
+        list-style-type: decimal;
+        padding-left: 1.625em;
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    .prose code {
+        color: #1f2937;
+        background-color: #f3f4f6;
+        padding: 0.2em 0.4em;
+        border-radius: 0.25em;
+        font-size: 0.875em;
+    }
+    .dark .prose code {
+        color: #e5e5e5;
+        background-color: #374151;
+    }
+    .prose pre {
+        color: #e5e5e5;
+        background-color: #1f2937;
+        overflow-x: auto;
+        padding: 1em;
+        border-radius: 0.375em;
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    .dark .prose pre {
+        background-color: #111827;
+    }
+    .prose blockquote {
+        border-left-width: 4px;
+        border-left-color: #e5e7eb;
+        padding-left: 1em;
+        font-style: italic;
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+    }
+    .dark .prose blockquote {
+        border-left-color: #4b5563;
+    }
+    .prose img {
+        margin-top: 1.25em;
+        margin-bottom: 1.25em;
+        border-radius: 0.375em;
+    }
+    .prose hr {
+        border-color: #e5e7eb;
+        margin-top: 2.5em;
+        margin-bottom: 2.5em;
+    }
+    .dark .prose hr {
+        border-color: #4b5563;
+    }
+    
+    /* Pygments Code Highlighting */
+    .codehilite .hll { background-color: #49483e }
+    .codehilite { background: #272822; color: #f8f8f2 }
+    .codehilite .c { color: #75715e } /* Comment */
+    .codehilite .err { color: #960050; background-color: #1e0010 } /* Error */
+    .codehilite .k { color: #66d9ef } /* Keyword */
+    .codehilite .l { color: #ae81ff } /* Literal */
+    .codehilite .n { color: #f8f8f2 } /* Name */
+    .codehilite .o { color: #f92672 } /* Operator */
+    .codehilite .p { color: #f8f8f2 } /* Punctuation */
+    .codehilite .cm { color: #75715e } /* Comment.Multiline */
+    .codehilite .cp { color: #75715e } /* Comment.Preproc */
+    .codehilite .c1 { color: #75715e } /* Comment.Single */
+    .codehilite .cs { color: #75715e } /* Comment.Special */
+    .codehilite .ge { font-style: italic } /* Generic.Emph */
+    .codehilite .gs { font-weight: bold } /* Generic.Strong */
+    .codehilite .kc { color: #66d9ef } /* Keyword.Constant */
+    .codehilite .kd { color: #66d9ef } /* Keyword.Declaration */
+    .codehilite .kn { color: #f92672 } /* Keyword.Namespace */
+    .codehilite .kp { color: #66d9ef } /* Keyword.Pseudo */
+    .codehilite .kr { color: #66d9ef } /* Keyword.Reserved */
+    .codehilite .kt { color: #66d9ef } /* Keyword.Type */
+    .codehilite .ld { color: #e6db74 } /* Literal.Date */
+    .codehilite .m { color: #ae81ff } /* Literal.Number */
+    .codehilite .s { color: #e6db74 } /* Literal.String */
+    .codehilite .na { color: #a6e22e } /* Name.Attribute */
+    .codehilite .nb { color: #f8f8f2 } /* Name.Builtin */
+    .codehilite .nc { color: #a6e22e } /* Name.Class */
+    .codehilite .no { color: #66d9ef } /* Name.Constant */
+    .codehilite .nd { color: #a6e22e } /* Name.Decorator */
+    .codehilite .ni { color: #f8f8f2 } /* Name.Entity */
+    .codehilite .ne { color: #a6e22e } /* Name.Exception */
+    .codehilite .nf { color: #a6e22e } /* Name.Function */
+    .codehilite .nl { color: #f8f8f2 } /* Name.Label */
+    .codehilite .nn { color: #f8f8f2 } /* Name.Namespace */
+    .codehilite .nx { color: #a6e22e } /* Name.Other */
+    .codehilite .py { color: #f8f8f2 } /* Name.Property */
+    .codehilite .nt { color: #f92672 } /* Name.Tag */
+    .codehilite .nv { color: #f8f8f2 } /* Name.Variable */
+    .codehilite .ow { color: #f92672 } /* Operator.Word */
+    .codehilite .w { color: #f8f8f2 } /* Text.Whitespace */
+    .codehilite .mf { color: #ae81ff } /* Literal.Number.Float */
+    .codehilite .mh { color: #ae81ff } /* Literal.Number.Hex */
+    .codehilite .mi { color: #ae81ff } /* Literal.Number.Integer */
+    .codehilite .mo { color: #ae81ff } /* Literal.Number.Oct */
+    .codehilite .sb { color: #e6db74 } /* Literal.String.Backtick */
+    .codehilite .sc { color: #e6db74 } /* Literal.String.Char */
+    .codehilite .sd { color: #e6db74 } /* Literal.String.Doc */
+    .codehilite .s2 { color: #e6db74 } /* Literal.String.Double */
+    .codehilite .se { color: #ae81ff } /* Literal.String.Escape */
+    .codehilite .sh { color: #e6db74 } /* Literal.String.Heredoc */
+    .codehilite .si { color: #e6db74 } /* Literal.String.Interpol */
+    .codehilite .sx { color: #e6db74 } /* Literal.String.Other */
+    .codehilite .sr { color: #e6db74 } /* Literal.String.Regex */
+    .codehilite .s1 { color: #e6db74 } /* Literal.String.Single */
+    .codehilite .ss { color: #e6db74 } /* Literal.String.Symbol */
+    .codehilite .bp { color: #f8f8f2 } /* Name.Builtin.Pseudo */
+    .codehilite .vc { color: #f8f8f2 } /* Name.Variable.Class */
+    .codehilite .vg { color: #f8f8f2 } /* Name.Variable.Global */
+    .codehilite .vi { color: #f8f8f2 } /* Name.Variable.Instance */
+    .codehilite .il { color: #ae81ff } /* Literal.Number.Integer.Long */
+</style>
+</head>
+<body class="bg-gray-50 transition-colors duration-200">
+    <!-- Theme Toggle -->
+<div class="fixed top-4 right-4 z-50">
+    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200">
+        <svg id="sun-icon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+        </svg>
+        <svg id="moon-icon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+        </svg>
+    </button>
+</div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Header -->
+<header class="text-center mb-8">
+    <h1 class="text-5xl font-extrabold text-gray-900 mb-4">DevOps Weekly Update</h1>
+    <p class="text-lg text-gray-600">December 06, 2024 - December 20, 2024</p>
+</header>
+        <!-- Quick Stats -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+        <h3 class="text-xl font-bold text-gray-800">Breaking Changes</h3>
+        <p class="text-3xl font-bold text-red-500">0</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+        <h3 class="text-xl font-bold text-gray-800">Security Updates</h3>
+        <p class="text-3xl font-bold text-yellow-500">0</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+        <h3 class="text-xl font-bold text-gray-800">New Features</h3>
+        <p class="text-3xl font-bold text-green-500">0</p>
+    </div>
+    <div class="bg-white p-4 rounded-lg shadow-md text-center">
+        <h3 class="text-xl font-bold text-gray-800">Total Updates</h3>
+        <p class="text-3xl font-bold text-blue-500">16</p>
+    </div>
+</section>
+        <!-- Controls -->
+<section class="mb-8">
+    <div class="flex flex-wrap gap-4 items-center justify-between bg-white p-4 rounded-lg shadow-md">
+        <!-- Search -->
+        <div class="flex-grow max-w-md">
+            <input type="text" id="search" placeholder="Search updates..." class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        
+        <!-- View Toggle -->
+        <div class="flex gap-2">
+            <button id="list-view-btn" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 active">List View</button>
+            <button id="timeline-view-btn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Timeline</button>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="mt-4 bg-white p-4 rounded-lg shadow-md filter-section">
+        <h3 class="text-lg font-semibold text-gray-800 mb-2 filter-heading">Filters</h3>
+        <div class="flex flex-wrap gap-2">
+            <div class="font-semibold mr-2 filter-label">Impact:</div>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-high">High Impact</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-medium">Medium Impact</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="impact-low">Low Impact</span>
+        </div>
+        <div class="flex flex-wrap gap-2 mt-2">
+            <div class="font-semibold mr-2 filter-label">Category:</div>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="infrastructure">Infrastructure</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="cicd">CI/CD</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="security">Security</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="cloud">Cloud</span>
+            <span class="filter-tag px-3 py-1 rounded-full text-sm" data-filter="tools">Tools</span>
+        </div>
+    </div>
+</section>
+        <!-- Updates Grid -->
+<section id="updates-container" class="max-w-7xl mx-auto">
+    <!-- Table of Contents -->
+    <nav class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Quick Navigation</h2>
+        <ul class="space-y-2">
+            
+            <li>
+                <a href="#azure" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="assets/icons/azure.svg" alt="" class="w-6 h-6 mr-2">
+                    <span>AzureRM Provider for Terraform Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">(2 updates)</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="#github" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="assets/icons/github.svg" alt="" class="w-6 h-6 mr-2">
+                    <span>GitHub Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">(10 updates)</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="#aws" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="assets/icons/aws.svg" alt="" class="w-6 h-6 mr-2">
+                    <span>AWS Provider for Terraform Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">(1 updates)</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="#terraform" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="assets/icons/terraform.svg" alt="" class="w-6 h-6 mr-2">
+                    <span>Terraform Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">(2 updates)</span>
+                </a>
+            </li>
+            
+            <li>
+                <a href="#googlecloud" 
+                   class="flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
+                    <img src="assets/icons/googlecloud.svg" alt="" class="w-6 h-6 mr-2">
+                    <span>Google Cloud Provider for Terraform Updates</span>
+                    <span class="ml-2 text-sm text-gray-500">(1 updates)</span>
+                </a>
+            </li>
+            
+        </ul>
+    </nav>
+
+    <!-- Updates by Source -->
+    
+    <section id="azure" class="mb-12">
+        <!-- Source Header -->
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="assets/icons/azure.svg" alt="AzureRM Provider for Terraform logo" class="w-16 h-16 mr-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">AzureRM Provider for Terraform</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
+                    </div>
+                </div>
+                
+                    
+                
+            </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-13T08:23:56+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-13T08:23:56+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v4.14.0
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>BREAKING CHANGES:</p>
+<ul>
+<li><code>nginx</code> - update api version to <code>2024-09-01-preview</code>, this API no longer supports certain properties which have had to be deprecated in the provider for the upgrade (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/27776">#27776</a>)</li>
+<li>Data Source: <code>azurerm_nginx_configuration</code> - the <code>protected_file.content</code> property will not be populated and has been deprecated (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/27776">#27776</a>)</li>
+<li>Data Source: <code>azurerm_nginx_deployment</code> - the <code>managed_resource_group</code> property will not be populated and has been deprecated (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/27776">#27776</a>)</li>
+<li><code>azurerm_network_function_collector_policy</code> - the API doesn't preserve the ordering of the <code>ipfx_ingestion.source_resource_ids</code> property causing non-empty plans after apply, this property's type has been changed from a list to a set to prevent Terraform from continually trying to recreate this resource. If this property is being referenced anywhere you will need to update your config to convert it to a list before referencing it (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/27915">#27915</a>)</li>
+<li><code>azurerm_nginx_deployment</code> - the <code>managed_resource_group</code> property is no longer supported and has been deprecated (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/27776">#27776</a>)</li>
+</ul>
+<p>FEATURES:</p>
+<ul>
+<li><strong>New Resource</strong>: <code>azurerm_cognitive_account_rai_blocklist</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28043">#28043</a>)</li>
+<li><strong>New Resource</strong>: <code>azurerm_fabric_capacity</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28080">#28080</a>)</li>
+</ul>
+<p>ENHANCEMENTS:</p>
+<ul>
+<li>dependencies - update <code>go-azure-sdk</code> to <code>v0.20241206.1180327</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28211">#28211</a>)</li>
+<li><code>nginx</code> - update api version to <code>2024-11-01-preview</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28227">#28227</a>)</li>
+<li><code>azurerm_linux_function_app</code> - add support for  preview  value <code>21</code> for <code>java_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/26304">#26304</a>)</li>
+<li><code>azurerm_linux_function_app_slot</code> - support <code>1.3</code> for <code>site_config.minimum_tls_version</code> and <code>site_config.scm_minimum_tls_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28016">#28016</a>)</li>
+<li><code>azurerm_linux_web_app</code> - add support for  preview  value <code>21</code> for <code>java_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/26304">#26304</a>)</li>
+<li><code>azurerm_orchestrated_virtual_machine_scale_set</code> - support hot patching for <code>2025-datacenter-azure-edition-core-smalldisk</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28160">#28160</a>)</li>
+<li><code>azurerm_search_service</code> - add support for the <code>network_rule_bypass_option</code> property (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28139">#28139</a>)</li>
+<li><code>azurerm_windows_function_app</code> - add support for  preview  value <code>21</code> for <code>java_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/26304">#26304</a>)</li>
+<li><code>azurerm_windows_function_app_slot</code> - support <code>1.3</code> for <code>site_config.minimum_tls_version</code> and <code>site_config.scm_minimum_tls_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28016">#28016</a>)</li>
+<li><code>azurerm_windows_virtual_machine</code> - support hot patching for <code>2025-datacenter-azure-edition-core-smalldisk</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28160">#28160</a>)</li>
+<li><code>azurerm_windows_web_app</code> - add support for  preview  value <code>21</code> for <code>java_version</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/26304">#26304</a>)</li>
+</ul>
+<p>BUG FIXES:</p>
+<ul>
+<li><code>azurerm_management_group</code> - fix regression where subscription ID can't be parsed correctly anymore (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28228">#28228</a>)</li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform-provider-azurerm/releases/tag/v4.14.0" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-06T05:40:41+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-06T05:40:41+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v4.13.0
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>ENHANCEMENTS:</p>
+<ul>
+<li><code>azurerm_cognitive_deployment</code> - support for the <code>dynamic_throttling_enabled</code> property (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28100">#28100</a>)</li>
+<li><code>azurerm_key_vault_managed_hardware_security_module_key</code> - the <code>key_type</code> property now supports <code>oct-HSM</code> (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28171">#28171</a>)</li>
+<li><code>azurerm_machine_learning_datastore_datalake_gen2</code> - can now be used with storage account in a different subscription (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28123">#28123</a>)</li>
+<li><code>azurerm_network_watcher_flow_log</code> - <code>target_resource_id</code> supports subnets and network interfaces (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28177">#28177</a>)</li>
+</ul>
+<p>BUG:</p>
+<ul>
+<li>Data Source: <code>azurerm_logic_app_standard</code> - update the <code>identity</code> property to support User Assigned Identities (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28158">#28158</a>)</li>
+<li><code>azurerm_cdn_frontdoor_origin_group</code> - update validation of the <code>interval_in_seconds</code> property to match API behaviour (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28143">#28143</a>)</li>
+<li><code>azurerm_container_group</code> - retrieve log analytics workspace key from config when updating resource (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28025">#28025</a>)</li>
+<li><code>azurerm_mssql_elasticpool</code> - fix sku tier and family validation that prevented the creation of Hyperscale PRMS pools (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28178">#28178</a>)</li>
+<li><code>azurerm_search_service</code> -  the <code>partition_count</code> property can now be up to <code>3</code> when using basic sku (<a href="https://github.com/hashicorp/terraform-provider-azurerm/issues/28105">#28105</a>)</li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform-provider-azurerm/releases/tag/v4.13.0" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+    
+    <section id="github" class="mb-12">
+        <!-- Source Header -->
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="assets/icons/github.svg" alt="GitHub logo" class="w-16 h-16 mr-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">GitHub</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
+                    </div>
+                </div>
+                
+                    
+                
+            </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-12T21:36:13+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-12T21:36:13+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            GitHub Issues & Projects – Close issue as a duplicate, REST API for sub-issues, and more!
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>Following our &#8220;Evolving GitHub Issues&#8221; <a href="https://github.blog/changelog/2024-10-01-evolving-github-issues-public-beta/">announcement</a> we&#8217;ve continued to improve the experience based on your feedback, including closing an issue as a duplicate, a REST API for sub-issues, and expanding the limits for both sub-issues and issue types.</p>
+<p>These new features are all available in public preview for you to try. To gain access for your organization, please sign up <a href="https://github.com/features/issues/signup">here</a>.</p>
+<h2 id="close-an-issue-as-a-duplicate">&#129529; Close an issue as a duplicate<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#close-an-issue-as-a-duplicate"></a></h2>
+<p>You can now close an issue as a duplicate of another issue, making it easier to manage your issues and provide more clarity on why they were closed.</p>
+<p>When closing an issue, select <code>Close as duplicate</code> from the dropdown to search for and select the duplicate issue. You&#8217;ll then see an event in the timeline and note at the top making it clear why it was closed.</p>
+<div class="wp-video" style="width: 1920px;"><!--[if lt IE 9]><script>document.createElement('video');</script><![endif]-->
+<video class="wp-video-shortcode" controls="controls" height="1080" id="video-81660-1" loop="1" preload="auto" width="1920"><source src="https://github.blog/wp-content/uploads/2024/12/video.mp4#t=0.001?_=1" type="video/mp4" /><a href="https://github.blog/wp-content/uploads/2024/12/video.mp4#t=0.001">https://github.blog/wp-content/uploads/2024/12/video.mp4#t=0.001</a></video></div>
+<h2 id="rest-api-support-for-sub-issues">&#9881; REST API support for sub-issues<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#rest-api-support-for-sub-issues"></a></h2>
+<p>You can now use the REST API to view, add, remove, and reprioritize sub-issues, making it easier to automate your use of sub-issues. Check out the <a href="https://docs.github.com/en/rest/issues/sub-issues?apiVersion=2022-11-28">documentation</a> to learn more.</p>
+<h2 id="increased-limits-for-sub-issues-and-issue-types">&#10133; Increased limits for sub-issues and issue types<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#increased-limits-for-sub-issues-and-issue-types"></a></h2>
+<p>You can now have up to 100 sub-issues per parent issue (up from 50), as well as up to 25 issue types in an organization (up from 10), making it easier to manage, classify, and break down work.</p>
+<p><img alt="Issue type organization settings showing maximum limit of 25 issue types" src="https://github.com/user-attachments/assets/3ddef1c7-2f8c-48f0-87af-22a38b4610f3" /></p>
+<h2 id="issue-types-on-github-mobile">&#128241; Issue types on GitHub Mobile<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#issue-types-on-github-mobile"></a></h2>
+<p>You can now view, add, and update issue types on GitHub Mobile.</p>
+<p><img alt="Issue types on GitHub Mobile" src="https://github.com/user-attachments/assets/40bc9b4a-a6cc-434c-9a2d-a4b314f99e3f" /></p>
+<h2 id="improved-filtering-for-sub-issues-and-issue-types">&#128269; Improved filtering for sub-issues and issue types<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#improved-filtering-for-sub-issues-and-issue-types"></a></h2>
+<p>You can use the <code>has:</code> and <code>no:</code> filters to search for sub-issues and issue types both from a project and the repository issues page, making it easier to find the exact set of issues you&#8217;re looking for and make updates.</p>
+<p><img alt="Issue filtering using has filter" src="https://github.com/user-attachments/assets/27b83b7d-3d46-4d6a-8418-afbfd3356def" /></p>
+<p>Example filters include:<br />
+&#8211; <code>no:type</code> to find all issues that do not yet have a type<br />
+&#8211; <code>no:parent-issue</code> to find all issues without a parent issue<br />
+&#8211; <code>has:sub-issue</code> to find all issues that have sub-issues</p>
+<h2 id="additional-improvements">&#10024; Additional improvements<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#additional-improvements"></a></h2>
+<p>On top of the many bug fixes we&#8217;ve shipped, we&#8217;ve also introduced the following improvements:<br />
+&#8211; If the sub-issue is from a different repository than the parent issue, you will now see the repository name in the sub-issues list.<br />
+&#8211; In GitHub markdown, pasting in a project link will now show the project name as well as more project details on hover.<br />
+&#8211; Projects insights charts now use Highcharts, which is an industry standard library for charts, improving our accessibility of projects insights.<br />
+&#8211; You can now use the <a href="https://docs.github.com/en/graphql/reference/mutations#updateprojectv2field"><code>UpdateProjectV2Field</code></a> GraphQL API mutation to directly update all single select field options in one API.</p>
+<h2 id="tell-us-what-you-think">&#9997; Tell us what you think!<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#tell-us-what-you-think"></a></h2>
+<p>Join the discussion in the <a href="https://github.com/orgs/community/discussions/146942">community discussion</a> to share your feedback.</p>
+<p>See how to use GitHub for project planning with <a href="https://github.com/features/issues">GitHub Issues</a>, check out what’s on the <a href="https://github.com/orgs/github/projects/4247/views/1">roadmap</a>, and learn more in the <a href="https://docs.github.com/en/issues">documentation</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-12-github-issues-projects-close-issue-as-a-duplicate-rest-api-for-sub-issues-and-more">GitHub Issues &amp; Projects &#8211; Close issue as a duplicate, REST API for sub-issues, and more!</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-12-github-issues-projects-close-issue-as-a-duplicate-rest-api-for-sub-issues-and-more" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-12T19:07:22+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-12T19:07:22+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Code security configurations now available at the enterprise level
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>You can now create and manage code security settings at the enterprise level. This change reduces the need for repetitive setup at the organization level.</p>
+<p>Key updates:<br />
+&#8211; Apply configurations across all repositories in an enterprise, only to repos without existing configurations, or to newly created repos.<br />
+&#8211; Enforce settings across your enterprise, ensuring security policies are applied consistently.<br />
+&#8211; Enterprise configurations will also appear on the organization-level page, giving you the flexibility to manage centrally but deploy locally. This also enables you to roll out configurations, organization by organization.</p>
+<p>Learn more about <a href="https://docs.github.com/enterprise-cloud@latest/admin/managing-code-security/securing-your-enterprise/about-security-configurations">enterprise-level code security configurations</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-12-code-security-configurations-now-available-at-the-enterprise-level">Code security configurations now available at the enterprise level</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-12-code-security-configurations-now-available-at-the-enterprise-level" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-12T16:42:52+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-12T16:42:52+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            VS Code November release (v0.23): Productivity enhancements for multi-file editing, debugging, and chat context
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p><img alt="A list of the GitHub Copilot updates in the November VS Code release." src="https://i0.wp.com/code.visualstudio.com/assets/updates/1_96/copilot-release-highlights.png?ssl=1" /></p>
+<p>In the latest <a href="https://code.visualstudio.com/updates/v1_96#_github-copilot">Visual Studio Code release</a>, you will find a suite of enhancements to GitHub Copilot, designed to make your coding and debugging experience in VS Code more productive and efficient. These features are now available for you to try out in the <a href="https://code.visualstudio.com/Download">latest version of Visual Studio Code</a>.</p>
+<h3 id="more-relevant-suggestions-with-extra-options-to-add-context">More relevant suggestions with extra options to add context<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#more-relevant-suggestions-with-extra-options-to-add-context"></a></h3>
+<p>To give you suggestions and edits, Copilot collects information from your codebase. To give you even more specific and relevant responses, you can provide additional context to guide and focus Copilot. In this release, we&#8217;ve added more ways to add context for Copilot Chat and Copilot Edits.</p>
+<p>You can now add <strong>symbols</strong> to the context to provide very detailed and specific context. Drag and drop a symbol from the Outline view or editor breadcrumb in the Chat view, or reference a symbol by typing <code>#sym</code> in the chat input field.</p>
+<p><video controls="controls" loop="loop" src="https://code.visualstudio.com/assets/updates/1_96/context_symbols_dnd.mp4" title="Dragging and dropping symbols from the outline view and editor breadcrumbs into copilot chat" width="100%"></video></p>
+<p>You can also add <strong>folders</strong> to the context to provide a broader context. Drag and drop a folder from the Explorer view into the Chat view to add all files in that folder to the context.</p>
+<p><video controls="controls" loop="loop" src="https://code.visualstudio.com/assets/updates/1_96/context_folder_chat.mp4" title="Dragging and dropping the @types folder into copilot chat and asking how to implement a share provider" width="100%"></video></p>
+<h3 id="more-efficient-multi-file-editing">More efficient multi-file editing<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#more-efficient-multi-file-editing"></a></h3>
+<p>With <a href="https://code.visualstudio.com/docs/copilot/copilot-edits">Copilot Edits (preview)</a>, you can get edit suggestions across multiple files in your project. We&#8217;ve made several enhancements to Copilot Edits to make the experience more efficient and easier to use.</p>
+<ul>
+<li><strong>Editor overlay controls</strong>: The overlay controls in the editor enable you to quickly navigate between suggested edits, review, and apply them. As Copilot Edits is generating edits, the overlay controls will show a progress indicator.
+<p><video controls="controls" loop="loop" src="https://code.visualstudio.com/assets/updates/1_96/chat-edits.mp4" title="Copilot Edits changing a file" width="100%"></video></p>
+</li>
+<li>
+<p><strong>Move chat conversation to Copilot Edits</strong>: You might use Copilot Chat to explore ideas for making code changes. Instead of applying individual code blocks from chat, you can now move the chat session to Copilot Edits to apply all code suggestions from the session.</p>
+<p><img alt="Edit with Copilot showing for a chat exchange." src="https://i0.wp.com/code.visualstudio.com/assets/updates/1_96/chat-move.png?ssl=1" /></p>
+</li>
+<li>
+<p><strong>Working set</strong>: For large codebases, it can be hard to add the right files to the working set. VS Code can now suggest relevant files to add to the working set, so you get the most relevant edits across your project. And to make adding to the working even more efficient, drag files from the Explorer view or Search view to add them to the working set.</p>
+<p><video controls="controls" loop="loop" src="https://code.visualstudio.com/assets/updates/1_96/working-set-suggested-files.mp4" title="Add suggested files to Copilot Edits working set." width="100%"></video></p>
+</li>
+<li>
+<p><strong>Restore edit sessions</strong>: Copilot Edits now saves and restores your edit session across VS Code restarts, so you can continue where you left off.</p>
+</li>
+</ul>
+<h3 id="kickstart-debugging-with-copilot-debug">Kickstart debugging with <code>copilot-debug</code><a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#kickstart-debugging-with-copilot-debug"></a></h3>
+<p>Setting up a debugging environment can be challenging, especially when you&#8217;re working with a new codebase or project. With the new <code>copilot-debug</code> terminal command, you can ask Copilot to generate a launch configuration for you based on your project&#8217;s setup. And if your project needs a compilation step before debugging, Copilot can generate a task for that too.</p>
+<p><video controls="controls" loop="loop" src="https://code.visualstudio.com/assets/updates/1_96/copilot-debug.mp4" title="Use the copilot-debug command to debug a Go program." width="100%"></video></p>
+<h3 id="customize-commit-message-generation">Customize commit-message generation<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#customize-commit-message-generation"></a></h3>
+<p><strong>Setting</strong>: <code>github.copilot.chat.commitMessageGeneration.instructions</code></p>
+<p>Copilot can help you generate commit messages based on the changes you&#8217;ve made. In this release, we added support for custom instructions when generating a commit message. For example, if your commit messages need to follow a specific format, you can describe this in the custom instructions.</p>
+<p>Use the <code>github.copilot.chat.commitMessageGeneration.instructions</code> setting to either specify the custom instructions directly, or to specify a file from your workspace that contains the custom instructions. These instructions are appended to the prompt that is used to generate the commit message. Get more information on how to <a href="https://code.visualstudio.com/docs/copilot/copilot-customization">use custom instructions</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-12-vs-code-november-release-v0-23-productivity-enhancements-for-multi-file-editing-debugging-and-chat-context">VS Code November release (v0.23): Productivity enhancements for multi-file editing, debugging, and chat context</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-12-vs-code-november-release-v0-23-productivity-enhancements-for-multi-file-editing-debugging-and-chat-context" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-12T12:22:54+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-12T12:22:54+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Refreshed pull request commits page now generally available
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>The refreshed pull request commits page, which was <a href="https://github.blog/changelog/2024-09-05-pull-request-commits-page-refresh-public-beta/">previously in public preview</a>, is now generally available! This updated page improves performance, is more consistent with other pages across GitHub, and is accessible to more users.</p>
+<p><img alt="Screenshot of the updated PR commits page showing a list of commits for a PR" src="https://github.com/user-attachments/assets/8c19a9cd-d9e1-4ede-b22c-45994131ff22" /></p>
+<p>Your feedback during the public preview helped us deliver a better experience, including better keyboard navigation. If you have additional feedback, please let us know in the <a href="https://github.com/orgs/community/discussions/categories/pull-requests"> GitHub Community</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-12-refreshed-pull-request-commits-page-now-generally-available">Refreshed pull request commits page now generally available</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-12-refreshed-pull-request-commits-page-now-generally-available" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-11T21:10:32+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-11T21:10:32+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Incidents will now post in Community Discussions
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p><img alt="A dark background with two security-themed abstract shapes positioned in the top left and bottom right corners. In the center of the image, bold white text reads &quot;Incident Resolved&quot; with a white Octocat logo." src="https://github.com/user-attachments/assets/b37ce9ba-ce4d-4e78-b49b-a7135fc92956" /></p>
+<p>We will now post updates and status interruptions in real-time on GitHub Community. We understand that no product is perfect, and there will be times when unsuspected degradations or outages occur. To make information as open and accessible as possible, any incident that occurs and is on our GitHub status page will have a corresponding discussion post on GitHub Community.</p>
+<p>This will give you a centralized thread in Community Discussions for you to share your experiences and find up to date information as it impacts your work.</p>
+<h3 id="what-can-you-expect">What can you expect?<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#what-can-you-expect"></a></h3>
+<ul>
+<li>If an incident occurs and is on our GitHub status page, a discussion will post declaring the incident in the community</li>
+<li>The ability to subscribe to an open incident discussion for real-time updates</li>
+<li>Subsequent updates to post on the incident’s discussion thread</li>
+<li>When an incident is resolved, you will see a marked answer and an image indicating the incident is resolved</li>
+<li>If available, a link to the public incident summary </li>
+</ul>
+<p>Questions or feedback? We want to hear from you! Join our <a href="https://github.com/orgs/community/discussions/146469">Community discussion</a> to share.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-11-incidents-will-now-post-in-community-discussions">Incidents will now post in Community Discussions</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-11-incidents-will-now-post-in-community-discussions" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-11T20:18:46+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-11T20:18:46+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Now you can fork public repositories on GitHub Mobile
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p><img alt="Hero image showcasing the repository forking feature in GitHub Mobile" src="https://github.com/user-attachments/assets/5031d08a-7089-460c-b0a5-d0661a3d5450" /></p>
+<p>You can now fork a public repository to your personal account directly from GitHub Mobile! This new feature allows you to easily create your own copy of a public repository on the go, making it simpler to contribute to open source projects, experiment with new ideas, or collaborate with others. It&#8217;s easier than ever to contribute to your favorite projects anytime, anywhere.</p>
+<p>Download or update GitHub Mobile today from the <a href="https://apps.apple.com/us/app/github/id1477376905">Apple App Store</a> or <a href="https://play.google.com/store/apps/details?id=com.github.android">Google Play Store</a> to get started.</p>
+<hr />
+<p><a href="https://github.com/mobile">Learn more about GitHub Mobile</a> and <a href="https://github.com/orgs/community/discussions/categories/mobile">share your feedback</a> to help us improve.</p>
+<p>Join the discussion within <a href="https://github.com/orgs/community/discussions/categories/announcements">GitHub Community</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-11-now-you-can-fork-public-repositories-on-github-mobile">Now you can fork public repositories on GitHub Mobile</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-11-now-you-can-fork-public-repositories-on-github-mobile" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-10T20:56:42+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-10T20:56:42+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Notice of breaking changes: Security manager REST API will be retired and replaced with the organization roles REST API
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>As part of our ongoing efforts to <a href="https://github.blog/changelog/2024-11-26-expanded-flexibility-and-control-for-managing-the-security-manager-role/">improve flexibility and control for managing the security manager role</a>, we are retiring the <strong><a href="https://docs.github.com/en/rest/orgs/security-managers?apiVersion=2022-11-28">security manager API</a></strong> and replacing it with the more robust <strong><a href="https://docs.github.com/en/rest/orgs/organization-roles">organization roles API</a></strong>, which provides expanded functionality for managing roles in an organization, including security managers.</p>
+<h3 id="endpoints-affected">Endpoints Affected<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#endpoints-affected"></a></h3>
+<p>The following security manager endpoints will be <strong>retired in 12 months</strong>:</p>
+<ul>
+<li><code>GET /orgs/{org}/security-managers/teams</code></li>
+<li><code>PUT /orgs/{org}/security-managers/teams/{team_slug}</code></li>
+<li><code>DELETE /orgs/{org}/security-managers/teams/{team_slug}</code></li>
+</ul>
+<p>After this period, these endpoints will no longer be available. Instead, you can use the <strong>organization roles API</strong> to perform the same actions and much more.</p>
+<h3 id="retirement-timeline">Retirement Timeline<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#retirement-timeline"></a></h3>
+<ul>
+<li><strong>GitHub.com</strong>: 2025-12-31</li>
+<li><strong>GitHub Enterprise Server</strong>: Version 3.20</li>
+</ul>
+<h3 id="replacements">Replacements<a class="heading-link pl-2 text-italic text-bold" href="https://github.blog/changelog/feed/#replacements"></a></h3>
+<p>The organization roles API offers enhanced capabilities for managing roles across an organization. Use the following endpoint as a replacement:</p>
+<ul>
+<li><code>GET /orgs/{org}/roles</code></li>
+<li><code>GET /orgs/{org}/roles/{role_id}/teams</code></li>
+<li><code>PUT /orgs/{org}/roles/{role_id}/teams/{team_slug}</code></li>
+<li><code>DELETE /orgs/{org}/roles/{role_id}/teams/{team_slug}</code></li>
+</ul>
+<p>You can start transitioning to the organization roles API today on GitHub.com. For GitHub Enterprise Server users, the organization roles API will support the security manager role starting in version 3.16.</p>
+<p><a href="https://docs.github.com/en/rest/orgs/organization-roles">Learn more about the organization roles API</a> and <a href="https://github.com/github-community/community/discussions/categories/code-security">send us your feedback</a></p>
+<p>The post <a href="https://github.blog/changelog/2024-12-10-notice-of-breaking-changes-security-manager-rest-api-will-be-retired-and-replaced-with-the-organization-roles-rest-api">Notice of breaking changes: Security manager REST API will be retired and replaced with the organization roles REST API</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-10-notice-of-breaking-changes-security-manager-rest-api-will-be-retired-and-replaced-with-the-organization-roles-rest-api" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-10T16:03:25+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-10T16:03:25+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Persistent commit signature verification is generally available
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>We&#8217;re excited to announce that persistent commit signature verification is now generally available! This powerful feature ensures that commit signatures are verified once at the time of the push and remain permanently verified within their respective <a href="https://docs.github.com/en/repositories/viewing-activity-and-data-for-your-repository/understanding-connections-between-repositories">repository&#8217;s network</a>.</p>
+<p>With persistent commit signature verification, commit signatures retain their verified status even if signing keys are rotated, revoked, or contributors leave the organization. You can view verification timestamps by hovering over the <em>Verified</em> badge on GitHub or by accessing the <code>verified_at</code> field through the <a href="https://docs.github.com/en/rest/users/gpg-keys?apiVersion=2022-11-28">REST API</a>.</p>
+<p><img alt="A badge tooltip displaying the date when the signature was first verified." src="https://github.com/user-attachments/assets/f1b58fb5-1ffb-4669-a1df-4bb791cb15e6" /></p>
+<p>This feature brings long-term reliability to your commit history, offering a consistent solution for managing commit signatures over time. New commits have had persistent records since the <a href="https://github.blog/changelog/2024-11-13-persistent-commit-signature-verification-now-in-public-preview/">public preview launch</a>. Existing commits progressively gain persistent records during their next verification, such as when viewing the <em>Verified</em> badge on GitHub or retrieving the commit via the REST API.</p>
+<p>Learn more about <a href="https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification">commit signature verification</a> and join the conversation in the <a href="https://github.com/orgs/community/discussions/144702">GitHub Community</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-10-persistent-commit-signature-verification-is-generally-available">Persistent commit signature verification is generally available</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-10-persistent-commit-signature-verification-is-generally-available" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-09T16:41:23+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-09T16:41:23+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Reviewers can add a comment on push protection bypass requests for secret scanning
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>Reviewers can now add comments to <a href="https://github.blog/changelog/2024-10-23-bypass-controls-for-push-protection-are-generally-available/">push protection bypass requests</a> in secret scanning. These comments help provide context, explaining the reasoning behind approving or denying a request. Requesters gain clarity on why their request was denied, and other reviewers can better understand why a request was approved or denied.</p>
+<p>The comment is included in the response email sent to the requester, as well as in the timeline of the resulting alert, the API, the audit log, and webhook responses.</p>
+<p><img alt="screenshot of an alert that has bypassed push protection, with a reviewer comment in the timeline" src="https://github.com/user-attachments/assets/34e2c7f7-d9c6-4e96-9154-7709c85a2259" /></p>
+<p>Learn more about how to secure your repositories with <a href="https://docs.github.com/en/enterprise-cloud@latest/code-security/secret-scanning/introduction/about-secret-scanning">secret scanning</a> and <a href="https://docs.github.com/en/enterprise-cloud@latest/code-security/secret-scanning/using-advanced-secret-scanning-and-push-protection-features/delegated-bypass-for-push-protection/about-delegated-bypass-for-push-protection">push protection bypass controls</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-09-reviewers-can-add-a-comment-on-push-protection-bypass-requests-for-secret-scanning">Reviewers can add a comment on push protection bypass requests for secret scanning</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-09-reviewers-can-add-a-comment-on-push-protection-bypass-requests-for-secret-scanning" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-09T16:33:26+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-09T16:33:26+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            Enhanced CodeQL pull request alerts report
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p><a href="https://docs.github.com/en/enterprise-cloud@latest/code-security/security-overview/viewing-metrics-for-pull-request-alerts">The metrics overview for CodeQL pull request alerts</a> now includes enhanced tracking and reporting mechanisms, resulting in greater accuracy and more CodeQL pull request alerts and Copilot Autofixes displayed on the dashboard.</p>
+<p>These changes retroactively affect the dashboard numbers, allowing you to effectively monitor your organization’s security posture.</p>
+<p>With these insights, you can proactively identify and address security risks before they reach your default branch. The metrics overview for CodeQL pull request alerts helps you understand how effectively CodeQL prevents vulnerabilities in your organization. You can use these metrics to easily identify the repositories where action is needed to mitigate security risks.</p>
+<p>The change is now generally available on GitHub Enterprise Cloud.</p>
+<p>Learn more about <a href="https://docs.github.com/en/enterprise-cloud@latest/code-security/security-overview/about-security-overview">security overview</a> and <a href="https://docs.github.com/en/code-security/code-scanning/introduction-to-code-scanning/about-code-scanning">code scanning</a>.</p>
+<p>The post <a href="https://github.blog/changelog/2024-12-09-enhanced-codeql-pull-request-alerts-report">Enhanced CodeQL pull request alerts report</a> appeared first on <a href="https://github.blog">The GitHub Blog</a>.</p>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.blog/changelog/2024-12-09-enhanced-codeql-pull-request-alerts-report" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+    
+    <section id="aws" class="mb-12">
+        <!-- Source Header -->
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="assets/icons/aws.svg" alt="AWS Provider for Terraform logo" class="w-16 h-16 mr-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">AWS Provider for Terraform</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
+                    </div>
+                </div>
+                
+                    
+                
+            </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-12T19:08:28+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-12T19:08:28+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v5.81.0
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>FEATURES:</p>
+<ul>
+<li><strong>New Data Source:</strong> <code>aws_servicecatalogappregistry_attribute_group</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/38188">#38188</a>)</li>
+<li><strong>New Ephemeral Resource:</strong> <code>aws_ssm_parameter</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40313">#40313</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_bedrock_inference_profile</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40294">#40294</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_cloudwatch_log_anomaly_detector</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40437">#40437</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_ecr_account_setting</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40219">#40219</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_msk_single_scram_secret_association</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/37056">#37056</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_servicecatalogappregistry_attribute_group</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/38183">#38183</a>)</li>
+<li><strong>New Resource:</strong> <code>aws_servicecatalogappregistry_attribute_group_association</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/38290">#38290</a>)</li>
+</ul>
+<p>ENHANCEMENTS:</p>
+<ul>
+<li>data-source/aws_api_gateway_domain_name: Add <code>policy</code> and <code>domain_name_id</code> attributes (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40364">#40364</a>)</li>
+<li>data-source/aws_servicecatalogappregistry_application: Add <code>tags</code> attribute (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/38243">#38243</a>)</li>
+<li>data-source/aws_sesv2_configuration_set: Add <code>delivery_options.max_delivery_seconds</code> and <code>tracking_options.https_policy</code> attributes (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40194">#40194</a>)</li>
+<li>resource/aws_api_gateway_base_path_mapping: Add <code>domain_name_id</code> argument (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40447">#40447</a>)</li>
+<li>resource/aws_api_gateway_domain_name: Add <code>policy</code> argument and <code>domain_name_id</code> attribute (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40364">#40364</a>)</li>
+<li>resource/aws_api_gateway_domain_name: Support <code>PRIVATE</code> as a valid value for <code>endpoint_configuration.types</code> argument, enabling custom domain name support for private REST API endpoints (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40364">#40364</a>)</li>
+<li>resource/aws_ebs_snapshot_copy: Add <code>completion_duration_minutes</code> argument (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40336">#40336</a>)</li>
+<li>resource/aws_glue_catalog_table_optimizer: Add <code>configuration.retention_configuration</code> and <code>configuration.orphan_file_deletion_configuration</code> attributes. (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40199">#40199</a>)</li>
+<li>resource/aws_instance: Add <code>enable_primary_ipv6</code> argument to add support for enabling primary IPv6 addresses on EC2 instances (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/36425">#36425</a>)</li>
+<li>resource/aws_kinesis_stream: Add plan-time validation that <code>shard_count</code> would not exceed the AWS account's <a href="https://docs.aws.amazon.com/streams/latest/dev/service-sizes-and-limits.html" rel="nofollow">shard quota</a> when the data stream capacity mode is <code>PROVISIONED</code>, preventing the provider from retrying for 1 hour in the case that the quota is exceeded. This functionality requires the <code>kinesis:DescribeLimits</code> IAM permission (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40499">#40499</a>)</li>
+<li>resource/aws_kinesis_stream: Add plan-time validation that creation of an on-demand stream would not exceed the AWS account's <a href="https://docs.aws.amazon.com/streams/latest/dev/service-sizes-and-limits.html" rel="nofollow">data stream quota</a>, preventing the provider from retrying for 1 hour in the case that the quota is exceeded. This functionality requires the <code>kinesis:DescribeLimits</code> IAM permission (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40499">#40499</a>)</li>
+<li>resource/aws_msk_replicator: Add <code>topic_replication.topic_name_configuration</code> argument (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40101">#40101</a>)</li>
+<li>resource/aws_network_interface: Add <code>enable_primary_ipv6</code> argument to add support for enabling primary IPv6 addresses for network interfaces (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/36425">#36425</a>)</li>
+<li>resource/aws_networkfirewall_firewall_policy: Add <code>stateful_engine_options.flow_timeouts</code> argument (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/39996">#39996</a>)</li>
+<li>resource/aws_rds_cluster: Add <code>serverlessv2_scaling_configuration.seconds_until_auto_pause</code> argument (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40441">#40441</a>)</li>
+<li>resource/aws_rds_global_cluster: Add <code>tags</code> argument and <code>tags_all</code> attribute (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40470">#40470</a>)</li>
+<li>resource/aws_sagemaker_notebook_instance: Support <code>notebook-al2-v3</code> value for <code>platform_identifier</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40484">#40484</a>)</li>
+<li>resource/aws_servicecatalogappregistry_application: Add <code>tags</code> argument and <code>tags_all</code> attribute (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/38243">#38243</a>)</li>
+<li>resource/aws_sesv2_configuration_set: Add <code>delivery_options.max_delivery_seconds</code> and <code>tracking_options.https_policy</code> arguments (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40194">#40194</a>)</li>
+</ul>
+<p>BUG FIXES:</p>
+<ul>
+<li>data-source/aws_kinesis_stream: Fix <code>InvalidArgumentException: NextToken and StreamName cannot be provided together</code> errors when the data stream has more than 1000 shards (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40499">#40499</a>)</li>
+<li>resource/aws_ce_cost_category: Change <code>rule</code> from <code>TypeSet</code> to <code>TypeList</code> as order is significant (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40521">#40521</a>)</li>
+<li>resource/aws_fsx_windows_file_system: Fix plan-time validation of <code>throughput_capacity</code> validation to allow values up to <code>12228</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40468">#40468</a>)</li>
+<li>resource/aws_networkfirewall_logging_configuration: Correctly manage all configured <code>logging_configuration.log_destination_config</code>s (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40092">#40092</a>)</li>
+<li>resource/aws_rds_cluster: Fix <code>InvalidDBClusterStateFault</code> errors when deleting clusters that are members of a global cluster (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40333">#40333</a>)</li>
+<li>resource/aws_rds_cluster: Fix <code>InvalidParameterValue: Serverless v2 maximum capacity 0.0 isn't valid. The maximum capacity must be at least 1.0.</code> errors when removing <code>serverlessv2_scaling_configuration</code> in an update (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40511">#40511</a>)</li>
+<li>resource/aws_rds_cluster: Respect <code>storage_type</code> when restoring from S3 (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40471">#40471</a>)</li>
+<li>resource/aws_rds_cluster: Respect <code>storage_type</code> when restoring from snapshot (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40471">#40471</a>)</li>
+<li>resource/aws_rds_cluster: Respect <code>storage_type</code> when restoring to a point in time (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40471">#40471</a>)</li>
+<li>resource/aws_rds_global_cluster: Mark <code>database_name</code> as Computed. This prevents resource recreation when the source cluster specifies a <code>database_name</code> (<a href="https://github.com/hashicorp/terraform-provider-aws/issues/40469">#40469</a>)</li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform-provider-aws/releases/tag/v5.81.0" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+    
+    <section id="terraform" class="mb-12">
+        <!-- Source Header -->
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="assets/icons/terraform.svg" alt="Terraform logo" class="w-16 h-16 mr-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Terraform</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
+                    </div>
+                </div>
+                
+                    
+                
+            </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-11T12:34:24+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-11T12:34:24+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v1.10.2
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <h2>1.10.2 (December 11, 2024)</h2>
+<p>BUG FIXES:</p>
+<ul>
+<li>cli: variables in an auto-loaded tfvars file which were overridden during plan incorrectly show as changed during apply [<a class="issue-link js-issue-link" href="https://github.com/hashicorp/terraform/pull/36180">GH-36180</a>]</li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform/releases/tag/v1.10.2" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-11T11:55:32+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-11T11:55:32+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v1.11.0-alpha20241211
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <h2>1.11.0-alpha20241211 (December 11, 2024)</h2>
+<p>ENHANCEMENTS:</p>
+<ul>
+<li><code>init</code>: Provider installation will utilise credentials configured in a <code>.netrc</code> file for the download and shasum URLs returned by provider registries. (<a href="https://github.com/hashicorp/terraform/blob/v1.11.0-alpha20241211/35843">https://github.com/hashicorp/terraform/pull/35843</a>)</li>
+</ul>
+<p>EXPERIMENTS:</p>
+<p>Experiments are only enabled in alpha releases of Terraform CLI. The following features are not yet available in stable releases.</p>
+<ul>
+<li><code>terraform test</code> accepts a new option <code>-junit-xml=FILENAME</code>. If specified, and if the test configuration is valid enough to begin executing, then Terraform writes a JUnit XML test result report to the given filename, describing similar information as included in the normal test output. (<a href="https://github.com/hashicorp/terraform/issues/34291">#34291</a>)</li>
+<li>The new command <code>terraform rpcapi</code> exposes some Terraform Core functionality through an RPC interface compatible with <a href="https://github.com/hashicorp/go-plugin"><code>go-plugin</code></a>. The exact RPC API exposed here is currently subject to change at any time, because it's here primarily as a vehicle to support the <a href="https://www.hashicorp.com/blog/terraform-stacks-explained" rel="nofollow">Terraform Stacks</a> private preview and so will be broken if necessary to respond to feedback from private preview participants, or possibly for other reasons. Do not use this mechanism yet outside of Terraform Stacks private preview.</li>
+<li>The experimental "deferred actions" feature, enabled by passing the <code>-allow-deferral</code> option to <code>terraform plan</code>, permits <code>count</code> and <code>for_each</code> arguments in <code>module</code>, <code>resource</code>, and <code>data</code> blocks to have unknown values and allows providers to react more flexibly to unknown values. This experiment is under active development, and so it's not yet useful to participate in this experiment</li>
+</ul>
+<h2>Previous Releases</h2>
+<p>For information on prior major and minor releases, refer to their changelogs:</p>
+<ul>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.10/CHANGELOG.md">v1.10</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.9/CHANGELOG.md">v1.9</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.8/CHANGELOG.md">v1.8</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.7/CHANGELOG.md">v1.7</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.6/CHANGELOG.md">v1.6</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.5/CHANGELOG.md">v1.5</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.4/CHANGELOG.md">v1.4</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.3/CHANGELOG.md">v1.3</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.2/CHANGELOG.md">v1.2</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.1/CHANGELOG.md">v1.1</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v1.0/CHANGELOG.md">v1.0</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v0.15/CHANGELOG.md">v0.15</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v0.14/CHANGELOG.md">v0.14</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v0.13/CHANGELOG.md">v0.13</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v0.12/CHANGELOG.md">v0.12</a></li>
+<li><a href="https://github.com/hashicorp/terraform/blob/v0.11/CHANGELOG.md">v0.11 and earlier</a></li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform/releases/tag/v1.11.0-alpha20241211" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+    
+    <section id="googlecloud" class="mb-12">
+        <!-- Source Header -->
+        <div class="bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 rounded-t-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="assets/icons/googlecloud.svg" alt="Google Cloud Provider for Terraform logo" class="w-16 h-16 mr-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900 dark:text-white">Google Cloud Provider for Terraform</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mt-1">Latest updates and announcements</p>
+                    </div>
+                </div>
+                
+                    
+                
+            </div>
+        </div>
+
+        <!-- Updates List -->
+        <div class="bg-white dark:bg-gray-800 rounded-b-xl shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+            
+            <article class="p-6 article-hover">
+                <!-- Update Header -->
+                <header class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="px-3 py-1 text-sm font-bold rounded-full bg-green-500">
+                                LOW IMPACT
+                            </span>
+                            <time datetime="2024-12-09T20:33:35+00:00" 
+                                  class="text-sm text-gray-600 dark:text-gray-400">
+                                2024-12-09T20:33:35+00:00
+                            </time>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+                            v6.13.0
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            
+                            <span class="px-3 py-1 text-sm font-medium bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full">
+                                General
+                            </span>
+                            
+                        </div>
+                        
+                    </div>
+                </header>
+
+                <!-- Update Content -->
+                <div class="space-y-6">
+                    <!-- Summary -->
+                    
+
+                    <!-- Content -->
+                    <div class="prose dark:prose-invert max-w-none">
+                        <div class="pl-4 border-l-4 border-gray-300 dark:border-gray-600">
+                            
+                                <p>NOTES:</p>
+<ul>
+<li>New <a href="https://developer.hashicorp.com/terraform/language/v1.10.x/resources/ephemeral" rel="nofollow">ephemeral resources</a> <code>google_service_account_access_token</code>, <code>google_service_account_id_token</code>, <code>google_service_account_jwt</code>, <code>google_service_account_key</code> now support <a href="https://developer.hashicorp.com/terraform/language/v1.10.x/values/variables#exclude-values-from-state" rel="nofollow">ephemeral values</a>.</li>
+<li>iam3: promoted resources <code>google_iam_principal_access_boundary_policy</code>, <code>google_iam_organizations_policy_binding</code>, <code>google_iam_folders_policy_binding</code> and <code>google_iam_projects_policy_binding</code> to GA (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20475">#20475</a>)<br />
+DEPRECATIONS:</li>
+<li>gkehub: deprecated <code>configmanagement.config_sync.metrics_gcp_service_account_email</code> in <code>google_gke_hub_feature_membership</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20561">#20561</a>)</li>
+</ul>
+<p>FEATURES:</p>
+<ul>
+<li><strong>New Ephemeral Resource:</strong> <code>google_service_account_access_token</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20542">#20542</a>)</li>
+<li><strong>New Ephemeral Resource:</strong> <code>google_service_account_id_token</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20542">#20542</a>)</li>
+<li><strong>New Ephemeral Resource:</strong> <code>google_service_account_jwt</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20542">#20542</a>)</li>
+<li><strong>New Ephemeral Resource:</strong> <code>google_service_account_key</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20542">#20542</a>)</li>
+<li><strong>New Data Source:</strong> <code>google_backup_dr_backup_vault</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20468">#20468</a>)</li>
+<li><strong>New Data Source:</strong> <code>google_composer_user_workloads_config_map</code> (GA) (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20478">#20478</a>)</li>
+<li><strong>New Data Source:</strong> <code>google_composer_user_workloads_secret</code> (GA) (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20478">#20478</a>)</li>
+<li><strong>New Resource:</strong> <code>google_composer_user_workloads_config_map</code> (GA) (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20478">#20478</a>)</li>
+<li><strong>New Resource:</strong> <code>google_composer_user_workloads_secret</code> (GA) (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20478">#20478</a>)</li>
+<li><strong>New Resource:</strong> <code>google_gemini_code_repository_index</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20474">#20474</a>)</li>
+<li><strong>New Resource:</strong> <code>google_network_security_mirroring_deployment</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20489">#20489</a>)</li>
+<li><strong>New Resource:</strong> <code>google_network_security_mirroring_deployment_group</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20489">#20489</a>)</li>
+<li><strong>New Resource:</strong> <code>google_network_security_mirroring_endpoint_group_association</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20489">#20489</a>)</li>
+<li><strong>New Resource:</strong> <code>google_network_security_mirroring_endpoint_group</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20489">#20489</a>)</li>
+</ul>
+<p>IMPROVEMENTS:</p>
+<ul>
+<li>accesscontextmanager: added <code>etag</code> to <code>google_access_context_manager_service_perimeter</code> and <code>google_access_context_manager_service_perimeters</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20455">#20455</a>)</li>
+<li>alloydb: increased default timeout on <code>google_alloydb_cluster</code> to 120m from 30m (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20547">#20547</a>)</li>
+<li>bigtable: added <code>row_affinity</code> field to <code>google_bigtable_app_profile</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20435">#20435</a>)</li>
+<li>cloudbuild: added <code>private_service_connect</code> field to <code>google_cloudbuild_worker_pool</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20561">#20561</a>)</li>
+<li>clouddeploy: added <code>associated_entities</code> field to <code>google_clouddeploy_target</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20561">#20561</a>)</li>
+<li>clouddeploy: added <code>serial_pipeline.strategy.canary.runtime_config.kubernetes.gateway_service_mesh.route_destinations</code> field to <code>google_clouddeploy_delivery_pipeline</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20561">#20561</a>)</li>
+<li>composer: added multiple composer 3 related fields to <code>google_composer_environment</code> (GA) (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20478">#20478</a>)</li>
+<li>compute: <code>google_compute_instance</code>, <code>google_compute_instance_template</code>, <code>google_compute_region_instance_template</code> now supports <code>advanced_machine_features.enable_uefi_networking</code> field (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20531">#20531</a>)</li>
+<li>compute: added support for specifying storage pool with name or partial url (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20502">#20502</a>)</li>
+<li>compute: added <code>numeric_id</code> to the <code>google_compute_network</code> data source (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20548">#20548</a>)</li>
+<li>compute: added <code>threshold_configs</code> field to <code>google_compute_security_policy</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20545">#20545</a>)</li>
+<li>compute: added server generated id as <code>forwarding_rule_id</code> to <code>google_compute_global_forwarding_rule</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added server generated id as <code>health_check_id</code> to <code>google_region_health_check</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added server generated id as <code>instance_group_manager_id</code> to <code>google_instance_group_manager</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added server generated id as <code>instance_group_manager_id</code> to <code>google_region_instance_group_manager</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added server generated id as <code>network_endpoint_id</code> to <code>google_region_network_endpoint</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added server generated id as <code>subnetwork_id</code> to <code>google_subnetwork</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20404">#20404</a>)</li>
+<li>compute: added the <code>psc_data</code> field to the <code>google_compute_region_network_endpoint_group</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20454">#20454</a>)</li>
+<li>container: added <code>enterprise_config</code> field to <code>google_container_cluster</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20534">#20534</a>)</li>
+<li>container: added <code>node_pool_autoconfig.linux_node_config.cgroup_mode</code> field to <code>google_container_cluster</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20460">#20460</a>)</li>
+<li>dataproc: added <code>autotuning_config</code> and <code>cohort</code> fields to <code>google_dataproc_batch</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20410">#20410</a>)</li>
+<li>dataproc: added <code>cluster_config.preemptible_worker_config.instance_flexibility_policy.provisioning_model_mix</code> field to <code>google_dataproc_cluster</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20396">#20396</a>)</li>
+<li>dataproc: added <code>confidential_instance_config</code> field to <code>google_dataproc_cluster</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20488">#20488</a>)</li>
+<li>discoveryengine: added <code>HEALTHCARE_FHIR</code> to <code>industry_vertical</code> field in <code>google_discovery_engine_search_engine</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20471">#20471</a>)</li>
+<li>gkehub: added <code>configmanagement.config_sync.stop_syncing</code> field to <code>google_gke_hub_feature_membership</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20561">#20561</a>)</li>
+<li>monitoring: added <code>disable_metric_validation</code> field to <code>google_monitoring_alert_policy</code> resource (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20544">#20544</a>)</li>
+<li>oracledatabase: added <code>deletion_protection</code> field to <code>google_oracle_database_autonomous_database</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20484">#20484</a>)</li>
+<li>oracledatabase: added <code>deletion_protection</code> field to <code>google_oracle_database_cloud_exadata_infrastructure</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20485">#20485</a>)</li>
+<li>oracledatabase: added <code>deletion_protection</code> field to <code>google_oracle_database_cloud_vm_cluster </code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20392">#20392</a>)</li>
+<li>parallelstore: added <code>deployment_type</code> to <code>google_parallelstore_instance</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20457">#20457</a>)</li>
+<li>resourcemanager: made <code>google_service_account</code> <code>email</code> and <code>member</code> fields available during plan (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20510">#20510</a>)</li>
+</ul>
+<p>BUG FIXES:</p>
+<ul>
+<li>apigee: made <code>google_apigee_organization</code> wait for deletion operation to complete. (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20504">#20504</a>)</li>
+<li>cloudfunctions: fixed issue when updating <code>vpc_connector_egress_settings</code> field for <code>google_cloudfunctions_function</code> resource. (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20437">#20437</a>)</li>
+<li>dataproc: ensured oneOf condition is honored when expanding the job configuration for Hive, Pig, Spark-sql, and Presto in <code>google_dataproc_job</code>. (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20453">#20453</a>)</li>
+<li>gkehub: fixed allowable value <code>INSTALLATION_UNSPECIFIED</code> in <code>template_library.installation</code> (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20567">#20567</a>)</li>
+<li>sql: fixed edition downgrade failure for an <code>ENTERPRISE_PLUS</code> instance with data cache enabled. (<a href="https://github.com/hashicorp/terraform-provider-google/pull/20393">#20393</a>)</li>
+</ul>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Key Changes & Highlights -->
+                    <div class="space-y-4">
+                        
+
+                        
+
+                        
+
+                        
+
+                        
+                    </div>
+
+                    <!-- Footer -->
+                    <footer class="flex items-center justify-end pt-4">
+                        <a href="https://github.com/hashicorp/terraform-provider-google/releases/tag/v6.13.0" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
+                            Read full update
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </footer>
+                </div>
+            </article>
+            
+        </div>
+    </section>
+    
+</section>
+
+<!-- Back to Top Button -->
+<button id="back-to-top" 
+        class="fixed bottom-8 right-8 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors hidden">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/>
+    </svg>
+</button>
+
+<script>
+// Back to Top Button
+const backToTopButton = document.getElementById('back-to-top');
+
+window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+        backToTopButton.classList.remove('hidden');
+    } else {
+        backToTopButton.classList.add('hidden');
+    }
+});
+
+backToTopButton.addEventListener('click', () => {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+});
+</script>
+        <!-- Footer -->
+<footer class="text-center mt-12">
+    <p class="text-gray-600">Stay updated with the latest DevOps trends and updates.</p>
+    <p class="text-gray-600">Generated on 2024-12-13 15:05:59</p>
+</footer>
+    </div>
+
+    <script>
+    // Theme toggle functionality
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const sunIcon = document.getElementById('sun-icon');
+    const moonIcon = document.getElementById('moon-icon');
+
+    const theme = localStorage.getItem('theme') || 'dark';
+    html.classList.toggle('dark', theme === 'dark');
+    updateIcons(theme === 'dark');
+
+    themeToggle.addEventListener('click', () => {
+        const isDark = html.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        updateIcons(isDark);
+    });
+
+    function updateIcons(isDark) {
+        sunIcon.classList.toggle('hidden', isDark);
+        moonIcon.classList.toggle('hidden', !isDark);
+    }
+
+    // Search functionality
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', filterUpdates);
+
+    // Filter tags
+    const filterTags = document.querySelectorAll('.filter-tag');
+    filterTags.forEach(tag => {
+        tag.addEventListener('click', () => {
+            tag.classList.toggle('active');
+            filterUpdates();
+        });
+    });
+
+    // View toggle
+    const listViewBtn = document.getElementById('list-view-btn');
+    const timelineViewBtn = document.getElementById('timeline-view-btn');
+    const updatesContainer = document.getElementById('updates-container');
+
+    listViewBtn.addEventListener('click', () => {
+        updatesContainer.classList.remove('timeline-view');
+        listViewBtn.classList.add('bg-blue-500', 'text-white');
+        listViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        timelineViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+        timelineViewBtn.classList.remove('bg-blue-500', 'text-white');
+    });
+
+    timelineViewBtn.addEventListener('click', () => {
+        updatesContainer.classList.add('timeline-view');
+        timelineViewBtn.classList.add('bg-blue-500', 'text-white');
+        timelineViewBtn.classList.remove('bg-gray-200', 'text-gray-700');
+        listViewBtn.classList.add('bg-gray-200', 'text-gray-700');
+        listViewBtn.classList.remove('bg-blue-500', 'text-white');
+    });
+
+    function filterUpdates() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const activeImpactFilters = Array.from(filterTags)
+            .filter(tag => tag.classList.contains('active') && tag.dataset.filter.startsWith('impact-'))
+            .map(tag => tag.dataset.filter);
+        const activeCategoryFilters = Array.from(filterTags)
+            .filter(tag => tag.classList.contains('active') && !tag.dataset.filter.startsWith('impact-'))
+            .map(tag => tag.dataset.filter);
+
+        const updates = document.querySelectorAll('#updates-container [data-impact]');
+        
+        updates.forEach(update => {
+            const title = update.querySelector('h4').textContent.toLowerCase();
+            const summary = update.querySelector('.prose').textContent.toLowerCase();
+            const impact = 'impact-' + update.dataset.impact.toLowerCase();
+            const categories = update.dataset.categories.split(' ');
+
+            const matchesSearch = searchTerm === '' || 
+                title.includes(searchTerm) || 
+                summary.includes(searchTerm);
+
+            const matchesImpact = activeImpactFilters.length === 0 || 
+                activeImpactFilters.includes(impact);
+
+            const matchesCategory = activeCategoryFilters.length === 0 || 
+                categories.some(cat => activeCategoryFilters.includes(cat));
+
+            update.style.display = 
+                matchesSearch && matchesImpact && matchesCategory ? 'block' : 'none';
+
+            // Highlight search terms
+            if (matchesSearch && searchTerm !== '') {
+                highlightText(update, searchTerm);
+            } else {
+                removeHighlights(update);
+            }
+        });
+    }
+
+    function highlightText(element, searchTerm) {
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_TEXT,
+            null,
+            false
+        );
+
+        while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const text = node.textContent;
+            const index = text.toLowerCase().indexOf(searchTerm);
+
+            if (index >= 0 && node.parentElement.className !== 'highlight') {
+                const span = document.createElement('span');
+                span.className = 'highlight';
+                const before = text.substring(0, index);
+                const match = text.substring(index, index + searchTerm.length);
+                const after = text.substring(index + searchTerm.length);
+                
+                const beforeNode = document.createTextNode(before);
+                const afterNode = document.createTextNode(after);
+                span.textContent = match;
+                
+                const parent = node.parentNode;
+                parent.insertBefore(beforeNode, node);
+                parent.insertBefore(span, node);
+                parent.insertBefore(afterNode, node);
+                parent.removeChild(node);
+            }
+        }
+    }
+
+    function removeHighlights(element) {
+        const highlights = element.querySelectorAll('.highlight');
+        highlights.forEach(highlight => {
+            const parent = highlight.parentNode;
+            parent.replaceChild(
+                document.createTextNode(highlight.textContent),
+                highlight
+            );
+        });
+    }
+</script>
+</body>
+</html>
